@@ -1,6 +1,6 @@
 # Dependencies (in root and all subdirectories)
 **/node_modules/
-
+test-frontend/
 # Environment variables
 *.env
 *.env.local
