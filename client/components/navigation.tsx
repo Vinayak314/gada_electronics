@@ -1,35 +1,56 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, Users, User, PlusCircle, Code, LogOut } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { signOut } from "firebase/auth"
+import { Home, Users, User, LogOut, Menu, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { auth } from "@/firebase"
 
 const navItems = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/friends", label: "Add Friends", icon: Users },
   { href: "/profile", label: "Profile", icon: User },
-  { href: "/challenge", label: "Add Challenge", icon: PlusCircle },
-  { href: "/editor", label: "Code Editor", icon: Code },
 ]
+
+const TOTAL_COINS = 1000
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [collapsed, setCollapsed] = useState(false)
 
-  // Don't show navigation on signup/login pages
-  if (pathname === "/" || pathname === "/login") {
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        collapsed ? "5rem" : "16rem",
+      )
+    }
+  }, [collapsed])
+
+  // Don't show navigation on signup (landing) page
+  if (pathname === "/") {
     return null
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-card/50 backdrop-blur-xl border-r border-border p-6 flex flex-col">
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/50">
-          <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-border bg-card/50 p-4 backdrop-blur-xl transition-all duration-200",
+        collapsed ? "w-20" : "w-64",
+      )}
+    >
+      <div className="mb-6 flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-lg shadow-primary/50">
+            <svg className="h-6 w-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          {!collapsed && <h1 className="text-lg font-bold text-foreground">GadaElectronics</h1>}
         </div>
-        <h1 className="text-lg font-bold text-foreground">GadaElectronics</h1>
       </div>
 
       <nav className="flex-1 space-y-2">
@@ -42,26 +63,53 @@ export function Navigation() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+                "flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                collapsed && "justify-center px-0",
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <Icon className="h-5 w-5" />
+              {!collapsed && <span className="font-medium">{item.label}</span>}
             </Link>
           )
         })}
       </nav>
 
-      <Link
-        href="/"
-        className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 mt-auto"
+      {!collapsed && (
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground">
+          <span className="font-medium">Total coins</span>
+          <span className="flex items-center gap-1 font-semibold">
+            <span>◆</span>
+            <span>{TOTAL_COINS}</span>
+          </span>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={async () => {
+          await signOut(auth)
+          router.push("/")
+        }}
+        className={cn(
+          "mt-auto flex items-center gap-3 rounded-lg px-4 py-3 text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground",
+          collapsed && "justify-center px-0",
+        )}
       >
-        <LogOut className="w-5 h-5" />
-        <span className="font-medium">Logout</span>
-      </Link>
+        <LogOut className="h-5 w-5" />
+        {!collapsed && <span className="font-medium">Logout</span>}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setCollapsed((prev) => !prev)}
+        className="absolute right-[-12px] top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground shadow-md hover:bg-accent hover:text-accent-foreground"
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+      </button>
     </aside>
   )
 }

@@ -1,17 +1,39 @@
 "use client"
+
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signInWithPopup } from "firebase/auth"
+import { auth, googleProvider } from "@/firebase"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
 export function SignupForm() {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleGoogleSignup = async () => {
-    setLoading(true)
-    // Simulate Google OAuth flow
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    console.log("Google signup initiated")
-    setLoading(false)
+    try {
+      setLoading(true)
+
+      // Sign in with Google using Firebase (same flow as test-frontend)
+      const result = await signInWithPopup(auth, googleProvider)
+      const token = await result.user.getIdToken()
+
+      // Call the Express server
+      await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      // Navigate into the app after successful login
+      router.push("/home")
+    } catch (error) {
+      console.error("Error during Google signup", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

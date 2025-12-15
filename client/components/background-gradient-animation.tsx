@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { type ReactNode, useEffect, useRef } from "react"
 
 interface GradientBlob {
   x: number
@@ -12,7 +12,7 @@ interface GradientBlob {
   opacity: number
 }
 
-export function BackgroundGradientAnimation() {
+export function BackgroundGradientAnimation({ children }: { children?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -124,5 +124,10 @@ export function BackgroundGradientAnimation() {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="absolute inset-0" />
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      <canvas ref={canvasRef} className="absolute inset-0 -z-10" />
+      {children}
+    </div>
+  )
 }
