@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 
-export const login =  async (req, res) => {
-  const { uid, email, name } = req.user;
+export const login = async (req, res) => {
+  const { uid, email, name, picture } = req.user;
 
   try {
     let user = await User.findById(uid);
@@ -11,7 +11,14 @@ export const login =  async (req, res) => {
         _id: uid,
         email,
         name,
+        photoURL: picture,
       });
+    } else {
+      // Update photo if changed (optional, but good practice)
+      if (user.photoURL !== picture) {
+        user.photoURL = picture;
+        await user.save();
+      }
     }
 
     res.status(200).json({
@@ -20,6 +27,8 @@ export const login =  async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        photoURL: user.photoURL,
+        tokens: user.tokens,
       },
     });
   } catch (err) {
@@ -28,7 +37,14 @@ export const login =  async (req, res) => {
 };
 
 export const me = async (req, res) => {
-  const user = await User.findById(req.user.uid);
-  res.json(user);
+  try {
+    const user = await User.findById(req.user.uid);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
 

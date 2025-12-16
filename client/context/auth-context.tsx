@@ -5,27 +5,78 @@ import type { User } from "firebase/auth"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/firebase"
 
-interface AuthContextValue {
-  user: User | null
-  loading: boolean
+
+export interface UserProfile {
+  _id: string;
+  email: string;
+  name?: string;
+  photoURL?: string;
+  tokens: number;
+  codeforces?: {
+    handle: string;
+    rating?: number;
+    rank?: string;
+    maxRating?: number;
+    maxRank?: string;
+    avatar?: string;
+  };
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+interface AuthContextValue {
+  user: User | null;
+  profile: UserProfile | null;
+  loading: boolean;
+  refreshProfile: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async (firebaseUser: User) => {
+    try {
+      const token = await firebaseUser.getIdToken();
+      const res = await fetch('http://localhost:5000/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser)
-      setLoading(false)
-    })
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
 
-    return () => unsubscribe()
-  }, [])
+      if (firebaseUser) {
+        await fetchProfile(firebaseUser);
+      } else {
+        setProfile(null);
+      }
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

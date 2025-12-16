@@ -3,6 +3,7 @@
 import type React from "react"
 import { usePathname } from "next/navigation"
 import { Navigation } from "@/components/navigation"
+import { CodeforcesOnboarding } from "@/components/codeforces-onboarding"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -20,6 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             : "min-h-screen pl-[var(--sidebar-width,16rem)] transition-all duration-200"
         }
       >
+        {!isAuthPage && <CodeforcesOnboarding />}
         {children}
       </main>
     </>

@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button"
 import { ProtectedRoute } from "@/components/protected-route"
 import Link from "next/link"
 
+import { useAuth } from "@/context/auth-context"
+
+// ... (Challenge types and data omitted for brevity if not modifying, but I'll need to keep them or wrap wisely)
+// Since replace_file_content works on chunks, I will target the imports and the component body start.
+
 type Challenge = {
   id: number
   title: string
@@ -37,7 +42,8 @@ const friendsChallenges: Challenge[] = [
 ]
 
 export default function HomePage() {
-  const totalCoins = 1000
+  const { profile } = useAuth()
+  const totalCoins = profile?.tokens ?? 0
 
   return (
     <ProtectedRoute>

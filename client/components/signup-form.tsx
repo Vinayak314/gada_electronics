@@ -18,7 +18,7 @@ export function SignupForm() {
       // Sign in with Google using Firebase (same flow as test-frontend)
       const result = await signInWithPopup(auth, googleProvider)
       const token = await result.user.getIdToken()
-
+      console.log("Firebase ID Token:", token);
       // Call the Express server
       await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",

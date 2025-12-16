@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/context/auth-context"
 import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function AddChallengePage() {
+  const { profile } = useAuth()
   const [questions, setQuestions] = useState(5)
   const [rating, setRating] = useState("800")
   const [timeframe, setTimeframe] = useState("week")
@@ -73,15 +75,22 @@ export default function AddChallengePage() {
                 <Label htmlFor="stake" className="text-white">
                   At Stake
                 </Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg text-white">◆</span>
-                  <Input
-                    id="stake"
-                    type="number"
-                    value={stake}
-                    onChange={(e) => setStake(Number.parseInt(e.target.value) || 0)}
-                    className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
-                  />
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg text-white">◆</span>
+                    <Input
+                      id="stake"
+                      type="number"
+                      value={stake}
+                      onChange={(e) => setStake(Number.parseInt(e.target.value) || 0)}
+                      className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className={stake > (profile?.tokens ?? 0) ? "text-red-400" : "text-white/60"}>
+                      Available: ◆ {profile?.tokens ?? 0}
+                    </span>
+                  </div>
                 </div>
               </div>
 

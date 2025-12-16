@@ -7,6 +7,7 @@ import { signOut } from "firebase/auth"
 import { Home, Users, User, LogOut, Menu, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { auth } from "@/firebase"
+import { useAuth } from "@/context/auth-context"
 
 const navItems = [
   { href: "/home", label: "Home", icon: Home },
@@ -14,11 +15,12 @@ const navItems = [
   { href: "/profile", label: "Profile", icon: User },
 ]
 
-const TOTAL_COINS = 1000
+
 
 export function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
+  const { profile } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -78,12 +80,20 @@ export function Navigation() {
       </nav>
 
       {!collapsed && (
-        <div className="mb-3 flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground">
-          <span className="font-medium">Total coins</span>
-          <span className="flex items-center gap-1 font-semibold">
-            <span>◆</span>
-            <span>{TOTAL_COINS}</span>
-          </span>
+        <div className="mb-3 space-y-2">
+          {profile?.name && (
+            <div className="px-1">
+              <div className="text-xs text-muted-foreground">Signed in as</div>
+              <div className="font-medium truncate" title={profile.name}>{profile.name}</div>
+            </div>
+          )}
+          <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground">
+            <span className="font-medium">Total coins</span>
+            <span className="flex items-center gap-1 font-semibold">
+              <span>◆</span>
+              <span>{profile?.tokens ?? 0}</span>
+            </span>
+          </div>
         </div>
       )}
 
