@@ -2,6 +2,8 @@
 
 import { Search } from "lucide-react"
 import { ProtectedRoute } from "@/components/protected-route"
+import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
+import SplashCursor from "@/components/splash-cursor"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 
@@ -14,8 +16,10 @@ const friends = [
 export default function FriendsPage() {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-black">
-        <div className="container mx-auto px-6 py-8">
+      <SplashCursor />
+      <BackgroundGradientAnimation>
+        <div className="min-h-screen bg-black/40 p-10 text-white">
+          <div className="container mx-auto px-6 py-8">
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-4xl font-bold text-white">Add Friends</h1>
             <div className="relative w-full max-w-md">
@@ -47,6 +51,7 @@ export default function FriendsPage() {
           </Card>
         </div>
       </div>
+      </BackgroundGradientAnimation>
     </ProtectedRoute>
   )
 }

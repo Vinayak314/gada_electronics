@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { ProtectedRoute } from "@/components/protected-route"
+import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
+import SplashCursor from "@/components/splash-cursor"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -49,8 +51,10 @@ export default function ProfilePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="container mx-auto px-6 py-12">
+      <SplashCursor />
+      <BackgroundGradientAnimation>
+        <div className="min-h-screen bg-black/40 p-10 text-white">
+          <div className="container mx-auto px-6 py-12">
           <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
             <CardContent className="p-8">
               <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
@@ -84,16 +88,20 @@ export default function ProfilePage() {
                   </div>
                   {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
 
-                  {profile?.codeforces && (
-                    <div className="mb-4 text-white/80 text-sm">
-                      <p>Rank: <span className="font-semibold text-white capitalize">{profile.codeforces.rank || "Unrated"}</span></p>
-                      <p>Rating: <span className="font-semibold text-white">{profile.codeforces.rating || "N/A"}</span> (Max: {profile.codeforces.maxRating || "N/A"})</p>
-                    </div>
-                  )}
-
-
                   <div className="mb-6 flex items-center gap-4">
-                    <div className="rounded-xl bg-white/5 px-4 py-3 text-left">
+                    {profile?.codeforces && (
+                      <>
+                        <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
+                          <p className="text-xs text-white/60">Rank</p>
+                          <p className="text-2xl font-bold text-white capitalize">{profile.codeforces.rank || "Unrated"}</p>
+                        </div>
+                        <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
+                          <p className="text-xs text-white/60">Rating</p>
+                          <p className="text-2xl font-bold text-white">{profile.codeforces.rating || "N/A"}</p>
+                        </div>
+                      </>
+                    )}
+                    <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
                       <p className="text-xs text-white/60">Coins</p>
                       <p className="text-2xl font-bold text-white">◆ {profile?.tokens ?? 0}</p>
                     </div>
@@ -119,6 +127,7 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
+      </BackgroundGradientAnimation>
     </ProtectedRoute>
   )
 }
