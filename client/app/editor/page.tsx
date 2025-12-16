@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Play, Save, Upload } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import Editor from "@monaco-editor/react"
+import { executeCode } from "@/lib/piston"
 
 export default function CodeEditorPage() {
   const [code, setCode] = useState(`#include <bits/stdc++.h>
@@ -23,11 +25,24 @@ int main() {
   const [language, setLanguage] = useState("cpp")
   const [output, setOutput] = useState("")
   const [input, setInput] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleRun = () => {
-    setOutput(
-      `Running code with input...\n\nInput:\n${input || "(empty)"}\n\nOutput:\nHello, World!\n\nExecution time: 0.42s\nMemory used: 14.2 MB`,
-    )
+  const handleRun = async () => {
+    setIsLoading(true)
+    setOutput("Running code...")
+
+    try {
+      const { run: result } = await executeCode(language, code, input)
+
+      setOutput(result.output)
+      // Note: Piston doesn't always return detailed usage stats in the same format, 
+      // but if available we can use them. Piston returns stdout/stderr/code/signal.
+      // We will assume result contains output.
+    } catch (error) {
+      setOutput("Error executing code: " + (error as Error).message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -49,27 +64,27 @@ int main() {
                   <SelectItem value="java">Java</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleRun} className="bg-green-600 hover:bg-green-700">
+              <Button onClick={handleRun} disabled={isLoading} className="bg-green-600 hover:bg-green-700">
                 <Play className="mr-2 h-4 w-4" />
-                Run
-              </Button>
-              <Button variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
-                <Save className="mr-2 h-4 w-4" />
-                Save
-              </Button>
-              <Button variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
-                <Upload className="mr-2 h-4 w-4" />
-                Submit
+                {isLoading ? "Running..." : "Run"}
               </Button>
             </div>
           </div>
 
           <Card className="h-[calc(100vh-180px)] overflow-hidden border-white/20 bg-slate-900/50 p-0">
-            <Textarea
+            <Editor
+              height="100%"
+              language={language}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="h-full resize-none border-0 bg-transparent font-mono text-sm text-white focus-visible:ring-0"
-              placeholder="Write your code here..."
+              theme="vs-dark"
+              onChange={(value) => setCode(value || "")}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                padding: { top: 16, bottom: 16 },
+              }}
             />
           </Card>
         </div>
@@ -96,24 +111,8 @@ int main() {
             </Card>
           </div>
 
-          <div className="mt-4 space-y-2">
-            <div className="rounded-lg bg-white/5 p-3">
-              <div className="text-sm text-white/70">Test Cases Passed</div>
-              <div className="text-2xl font-bold text-white">0 / 10</div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg bg-white/5 p-3">
-                <div className="text-sm text-white/70">Time</div>
-                <div className="text-lg font-bold text-white">-- ms</div>
-              </div>
-              <div className="rounded-lg bg-white/5 p-3">
-                <div className="text-sm text-white/70">Memory</div>
-                <div className="text-lg font-bold text-white">-- MB</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </ProtectedRoute >
   )
 }
