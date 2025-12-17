@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { ProtectedRoute } from "@/components/protected-route"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
@@ -9,14 +10,49 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function AddChallengePage() {
-  const { profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
+  const router = useRouter()
   const [questions, setQuestions] = useState(5)
-  const [rating, setRating] = useState("800")
-  const [timeframe, setTimeframe] = useState("week")
+  const [rating, setRating] = useState(800)
+  const [timeframe, setTimeframe] = useState(7)
   const [stake, setStake] = useState(100)
+  const [loading, setLoading] = useState(false)
+
+  const handleCreateChallenge = async () => {
+    if (!user) return
+    setLoading(true)
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch("http://localhost:5000/api/challenges", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          questions,
+          minRating: rating,
+          timeframe,
+          stake,
+        }),
+      })
+
+      if (res.ok) {
+        await refreshProfile()
+        router.push("/home")
+      } else {
+        const data = await res.json()
+        alert(data.message || "Failed to create challenge")
+      }
+    } catch (error) {
+      console.error(error)
+      alert("An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <ProtectedRoute>
@@ -24,94 +60,89 @@ export default function AddChallengePage() {
       <BackgroundGradientAnimation>
         <div className="min-h-screen bg-black/40 p-10 text-white">
           <div className="container mx-auto max-w-3xl">
-          <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold text-white">Add a Challenge</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="questions" className="text-white">
-                  No. of Questions
-                </Label>
-                <Input
-                  id="questions"
-                  type="number"
-                  value={questions}
-                  onChange={(e) => setQuestions(Number.parseInt(e.target.value) || 0)}
-                  className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="rated" className="text-white">
-                  Rated
-                </Label>
-                <div className="flex items-center gap-3">
-                  <Select value={rating} onValueChange={setRating}>
-                    <SelectTrigger
-                      id="rated"
-                      className="w-28 border-white/30 bg-white/10 text-white focus:ring-white/50 [&>span]:text-white"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/20 bg-black/90 text-white">
-                      <SelectItem value="800">800</SelectItem>
-                      <SelectItem value="1000">1000</SelectItem>
-                      <SelectItem value="1200">1200</SelectItem>
-                      <SelectItem value="1400">1400</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-white">in</span>
-                  <Select value={timeframe} onValueChange={setTimeframe}>
-                    <SelectTrigger className="w-32 border-white/30 bg-white/10 text-white [&>span]:text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/20 bg-black/90 text-white">
-                      <SelectItem value="week">a week</SelectItem>
-                      <SelectItem value="2weeks">2 weeks</SelectItem>
-                      <SelectItem value="month">a month</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-3xl font-bold text-white">Add a Challenge</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="questions" className="text-white">
+                    No. of Questions
+                  </Label>
+                  <Input
+                    id="questions"
+                    type="number"
+                    value={questions}
+                    onChange={(e) => setQuestions(Number.parseInt(e.target.value) || 0)}
+                    className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                  />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="stake" className="text-white">
-                  At Stake
-                </Label>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg text-white">◆</span>
+                <div className="space-y-2">
+                  <Label htmlFor="rated" className="text-white">
+                    Min Rating
+                  </Label>
+                  <div className="flex items-center gap-3">
                     <Input
-                      id="stake"
+                      id="rated"
                       type="number"
-                      value={stake}
-                      onChange={(e) => setStake(Number.parseInt(e.target.value) || 0)}
-                      className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                      value={rating}
+                      onChange={(e) => setRating(Number.parseInt(e.target.value) || 0)}
+                      className="w-32 border-white/30 bg-white/10 text-white placeholder:text-white/50"
                     />
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className={stake > (profile?.tokens ?? 0) ? "text-red-400" : "text-white/60"}>
-                      Available: ◆ {profile?.tokens ?? 0}
-                    </span>
+                    <span className="text-sm text-white">within</span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="timeframe"
+                        type="number"
+                        value={timeframe}
+                        onChange={(e) => setTimeframe(Number.parseInt(e.target.value) || 0)}
+                        className="w-24 border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                      />
+                      <span className="text-sm text-white">days</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Button
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                size="lg"
-              >
-                Create Challenge
-              </Button>
-            </CardContent>
-          </Card>
+                <div className="space-y-2">
+                  <Label htmlFor="stake" className="text-white">
+                    At Stake
+                  </Label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg text-white">◆</span>
+                      <Input
+                        id="stake"
+                        type="number"
+                        value={stake}
+                        onChange={(e) => setStake(Number.parseInt(e.target.value) || 0)}
+                        className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className={stake > (profile?.tokens ?? 0) ? "text-red-400" : "text-white/60"}>
+                        Available: ◆ {profile?.tokens ?? 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-          <div className="mt-6 text-center text-sm text-white/70">
-            NOTE: If you put 100 here and have 5 friends, each friend will get 20.
+                <Button
+                  className="w-full rounded-full bg-white text-black hover:bg-white/90"
+                  size="lg"
+                  onClick={handleCreateChallenge}
+                  disabled={loading || stake > (profile?.tokens ?? 0)}
+                >
+                  {loading ? "Creating..." : "Create Challenge"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div className="mt-6 text-center text-sm text-white/70">
+              NOTE: If you put 100 here and have 5 friends, each friend will get 20.
+            </div>
           </div>
         </div>
-      </div>
       </BackgroundGradientAnimation>
     </ProtectedRoute>
   )

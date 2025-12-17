@@ -96,3 +96,25 @@ export const rejectFriendRequest = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 }
+
+export const getFriends = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.uid).populate("friends", "name codeforces.handle photoURL codeforces.rating");
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.json(user.friends);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getFriendRequests = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.uid).populate("friendRequests.incoming", "name codeforces.handle photoURL");
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.json(user.friendRequests.incoming);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

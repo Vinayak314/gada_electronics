@@ -1,5 +1,27 @@
 import User from "../models/User.js";
 
+export const searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query) return res.json([]);
+
+        const users = await User.find({
+            $or: [
+                { name: { $regex: query, $options: "i" } },
+                { "codeforces.handle": { $regex: query, $options: "i" } }
+            ]
+        }).select("name codeforces.handle photoURL email friends friendRequests");
+
+        const currentUserId = req.user.uid;
+        const filteredUsers = users.filter(u => u._id !== currentUserId);
+
+        res.json(filteredUsers);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 export const linkCodeforces = async (req, res) => {
     const { handle } = req.body;
     const { uid } = req.user;
@@ -44,7 +66,7 @@ export const linkCodeforces = async (req, res) => {
             rank: cfUser.rank,
             maxRating: cfUser.maxRating,
             maxRank: cfUser.maxRank,
-            avatar: cfUser.avatar,
+            // avatar: cfUser.avatar, // User prefers Google photo
             lastUpdated: new Date()
         };
 

@@ -53,15 +53,15 @@ export default function AuthPage() {
       ctx.fillStyle = "#1C1C1C"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Update positions
-      ;[gradient1, gradient2, gradient3, gradient4].forEach((grad) => {
-        grad.x += grad.vx
-        grad.y += grad.vy
+        // Update positions
+        ;[gradient1, gradient2, gradient3, gradient4].forEach((grad) => {
+          grad.x += grad.vx
+          grad.y += grad.vy
 
-        // Bounce off edges
-        if (grad.x < 0 || grad.x > canvas.width) grad.vx *= -1
-        if (grad.y < 0 || grad.y > canvas.height) grad.vy *= -1
-      })
+          // Bounce off edges
+          if (grad.x < 0 || grad.x > canvas.width) grad.vx *= -1
+          if (grad.y < 0 || grad.y > canvas.height) grad.vy *= -1
+        })
 
       // Draw gradients with color scheme
       const drawGradient = (x: number, y: number, radius: number, color: string) => {
@@ -266,9 +266,6 @@ export default function AuthPage() {
             <SignupForm />
           </div>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Secure authentication powered by next-gen technology
-          </p>
         </div>
       </div>
     </div>

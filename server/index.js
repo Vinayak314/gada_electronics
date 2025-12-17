@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import challengeRoutes from "./routes/challengeRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/challenges", challengeRoutes);
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");

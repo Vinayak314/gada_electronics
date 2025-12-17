@@ -8,14 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, CheckCircle2, Copy } from "lucide-react"
 
 export function CodeforcesOnboarding() {
-    const { user, profile, refreshProfile } = useAuth()
+    const { user, profile, refreshProfile, loading } = useAuth()
     const [handle, setHandle] = useState("")
-    const [loading, setLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false) // renamed from loading to avoid conflict
     const [error, setError] = useState("")
     const [verificationToken, setVerificationToken] = useState("")
 
-    // Don't show if no user or if already linked
-    if (!user || !profile || profile.codeforces?.handle) {
+    // Don't show if loading, no user, or already linked
+    if (loading) return null
+    if (!user) return null
+    if (profile?.codeforces?.handle) {
         return null
     }
 
@@ -24,7 +26,7 @@ export function CodeforcesOnboarding() {
 
     const handleLink = async () => {
         if (!handle.trim()) return
-        setLoading(true)
+        setIsLoading(true)
         setError("")
 
         try {
@@ -51,7 +53,7 @@ export function CodeforcesOnboarding() {
         } catch (err: any) {
             setError(err.message)
         } finally {
-            setLoading(false)
+            setIsLoading(false)
         }
     }
 
@@ -103,9 +105,9 @@ export function CodeforcesOnboarding() {
                     <Button
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                         onClick={handleLink}
-                        disabled={loading || !handle}
+                        disabled={isLoading || !handle}
                     >
-                        {loading ? (
+                        {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Verifying...

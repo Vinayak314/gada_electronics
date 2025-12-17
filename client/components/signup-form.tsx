@@ -7,9 +7,12 @@ import { auth, googleProvider } from "@/firebase"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
+import { useAuth } from "@/context/auth-context"
+
 export function SignupForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { refreshProfile } = useAuth()
 
   const handleGoogleSignup = async () => {
     try {
@@ -26,6 +29,9 @@ export function SignupForm() {
           Authorization: `Bearer ${token}`,
         },
       })
+
+      // Refresh profile to ensure we have the latest data (especially for new users)
+      await refreshProfile()
 
       // Navigate into the app after successful login
       router.push("/home")

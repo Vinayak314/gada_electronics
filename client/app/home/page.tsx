@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
 import SplashCursor from "@/components/splash-cursor"
 import { Button } from "@/components/ui/button"
@@ -8,43 +9,57 @@ import Link from "next/link"
 
 import { useAuth } from "@/context/auth-context"
 
-// ... (Challenge types and data omitted for brevity if not modifying, but I'll need to keep them or wrap wisely)
-// Since replace_file_content works on chunks, I will target the imports and the component body start.
-
 type Challenge = {
-  id: number
+  _id: string
   title: string
-  timeframe: string
-  stakePerFriend: number
+  timeframe: number
+  stake: number
+  deadline: string
+  creator?: {
+    _id: string
+    name: string
+    photoURL: string
+  }
 }
 
-const yourChallenges: Challenge[] = [
-  {
-    id: 1,
-    title: "Solve 4 Problems in a week",
-    timeframe: "in a week",
-    stakePerFriend: 50,
-  },
-]
-
-const friendsChallenges: Challenge[] = [
-  {
-    id: 1,
-    title: "Solve 4 Problems in a week",
-    timeframe: "in a week",
-    stakePerFriend: 20,
-  },
-  {
-    id: 2,
-    title: "Solve 4 Problems in a week",
-    timeframe: "in a week",
-    stakePerFriend: 20,
-  },
-]
-
 export default function HomePage() {
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
   const totalCoins = profile?.tokens ?? 0
+  const [yourChallenges, setYourChallenges] = useState<Challenge[]>([])
+  const [friendsChallenges, setFriendsChallenges] = useState<Challenge[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      if (!user) return
+      try {
+        const token = await user.getIdToken()
+
+        // Fetch your challenges
+        const resYour = await fetch("http://localhost:5000/api/challenges", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        // Fetch friends' challenges
+        const resFriends = await fetch("http://localhost:5000/api/challenges/friends", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        if (resYour.ok && resFriends.ok) {
+          const dataYour = await resYour.json()
+          const dataFriends = await resFriends.json()
+          setYourChallenges(dataYour)
+          setFriendsChallenges(dataFriends)
+        }
+      } catch (error) {
+        console.error("Failed to fetch challenges", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchChallenges()
+  }, [user])
 
   return (
     <ProtectedRoute>
@@ -70,21 +85,28 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3">
-                  {yourChallenges.map((challenge) => (
-                    <div
-                      key={challenge.id}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">{challenge.title}</p>
-                        <p className="text-xs text-white/60">{challenge.timeframe}</p>
+                  {loading ? (
+                    <div className="text-sm text-white/50">Loading challenges...</div>
+                  ) : yourChallenges.length === 0 ? (
+                    <div className="text-sm text-white/50">No active challenges. Add one!</div>
+                  ) : (
+                    yourChallenges.map((challenge) => (
+                      <div
+                        key={challenge._id}
+                        className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">{challenge.title}</p>
+                          <p className="text-xs text-white/60">
+                            in {challenge.timeframe} days
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-semibold">
+                          <span className="rounded-full bg-white/10 px-3 py-1">◆ {challenge.stake}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm font-semibold">
-                        <span className="text-white/70">You put</span>
-                        <span className="rounded-full bg-white/10 px-3 py-1">◆ {challenge.stakePerFriend}</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
                 <div className="flex justify-center">
@@ -99,25 +121,31 @@ export default function HomePage() {
               <section className="mt-8 space-y-3">
                 <h2 className="text-lg font-semibold">Friend&apos;s Challenges</h2>
 
-                {friendsChallenges.map((challenge, index) => (
-                  <div
-                    key={challenge.id}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{index === 0 ? "Samaira" : "Dhanya"}</p>
-                      <p className="text-xs text-white/60">{challenge.title}</p>
+                {loading ? (
+                  <div className="text-sm text-white/50">Loading friends' challenges...</div>
+                ) : friendsChallenges.length === 0 ? (
+                  <div className="text-sm text-white/50">No friends' challenges yet.</div>
+                ) : (
+                  friendsChallenges.map((challenge) => (
+                    <div
+                      key={challenge._id}
+                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{challenge.creator?.name || "Friend"}</p>
+                        <p className="text-xs text-white/60">{challenge.title}</p>
+                      </div>
+                      <div className="flex flex-col items-end text-sm">
+                        <span className="mt-1 rounded-full bg-white/10 px-3 py-1 font-semibold">
+                          ◆ {Math.floor(challenge.stake / 5)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end text-sm">
-                      <span className="mt-1 rounded-full bg-white/10 px-3 py-1 font-semibold">
-                        ◆ {challenge.stakePerFriend}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
 
                 <p className="mt-2 text-xs text-white/60">
-                  NOTE: If you put 100 coins here and have 5 friends, each friend will get 20.
+                  NOTE: The reward is calculated based on the stake.
                 </p>
               </section>
 
