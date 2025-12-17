@@ -50,6 +50,39 @@ export const getChallenges = async (req, res) => {
         console.error("Error getting challenges:", error);
         res.status(500).json({ message: error.message });
     }
+
+};
+
+export const joinChallenge = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const uid = req.user.uid;
+
+        const challenge = await Challenge.findById(id);
+        if (!challenge) {
+            return res.status(404).json({ message: "Challenge not found" });
+        }
+
+        if (challenge.status !== 'active') {
+            return res.status(400).json({ message: "Challenge is not active" });
+        }
+
+        if (challenge.creator.toString() === uid) {
+            return res.status(400).json({ message: "Cannot join your own challenge" });
+        }
+
+        if (challenge.participants.includes(uid)) {
+            return res.status(400).json({ message: "Already joined" });
+        }
+
+        challenge.participants.push(uid);
+        await challenge.save();
+
+        res.status(200).json(challenge);
+    } catch (error) {
+        console.error("Error joining challenge:", error);
+        res.status(500).json({ message: error.message });
+    }
 };
 
 export const getFriendsChallenges = async (req, res) => {
@@ -65,6 +98,7 @@ export const getFriendsChallenges = async (req, res) => {
             status: 'active' // Optional: only show active challenges
         })
             .populate('creator', 'name photoURL')
+            .populate('participants', 'name photoURL')
             .sort({ createdAt: -1 });
 
         res.status(200).json(challenges);

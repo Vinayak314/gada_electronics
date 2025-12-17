@@ -38,7 +38,11 @@ const ChallengeSchema = new mongoose.Schema({
     deadline: {
         type: Date,
         required: true
-    }
+    },
+    participants: [{
+        type: String,
+        ref: "User"
+    }]
 });
 
 export default mongoose.model("Challenge", ChallengeSchema);

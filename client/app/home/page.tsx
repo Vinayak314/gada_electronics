@@ -15,6 +15,11 @@ type Challenge = {
   timeframe: number
   stake: number
   deadline: string
+  participants?: {
+    _id: string
+    name: string
+    photoURL: string
+  }[]
   creator?: {
     _id: string
     name: string
@@ -29,37 +34,56 @@ export default function HomePage() {
   const [friendsChallenges, setFriendsChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchChallenges = async () => {
-      if (!user) return
-      try {
-        const token = await user.getIdToken()
+  const fetchChallenges = async () => {
+    if (!user) return
+    try {
+      const token = await user.getIdToken()
 
-        // Fetch your challenges
-        const resYour = await fetch("http://localhost:5000/api/challenges", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+      // Fetch your challenges
+      const resYour = await fetch("http://localhost:5000/api/challenges", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-        // Fetch friends' challenges
-        const resFriends = await fetch("http://localhost:5000/api/challenges/friends", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+      // Fetch friends' challenges
+      const resFriends = await fetch("http://localhost:5000/api/challenges/friends", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-        if (resYour.ok && resFriends.ok) {
-          const dataYour = await resYour.json()
-          const dataFriends = await resFriends.json()
-          setYourChallenges(dataYour)
-          setFriendsChallenges(dataFriends)
-        }
-      } catch (error) {
-        console.error("Failed to fetch challenges", error)
-      } finally {
-        setLoading(false)
+      if (resYour.ok && resFriends.ok) {
+        const dataYour = await resYour.json()
+        const dataFriends = await resFriends.json()
+        setYourChallenges(dataYour)
+        setFriendsChallenges(dataFriends)
       }
+    } catch (error) {
+      console.error("Failed to fetch challenges", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchChallenges()
   }, [user])
+
+  const handleJoin = async (challengeId: string) => {
+    if (!user) return
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch(`http://localhost:5000/api/challenges/${challengeId}/join`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        fetchChallenges()
+      } else {
+        const data = await res.json()
+        alert(data.message || "Failed to join challenge")
+      }
+    } catch (error) {
+      console.error("Failed to join challenge", error)
+    }
+  }
 
   return (
     <ProtectedRoute>
@@ -126,22 +150,36 @@ export default function HomePage() {
                 ) : friendsChallenges.length === 0 ? (
                   <div className="text-sm text-white/50">No friends' challenges yet.</div>
                 ) : (
-                  friendsChallenges.map((challenge) => (
-                    <div
-                      key={challenge._id}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">{challenge.creator?.name || "Friend"}</p>
-                        <p className="text-xs text-white/60">{challenge.title}</p>
+                  friendsChallenges.map((challenge) => {
+                    const isJoined = challenge.participants?.some(p => p._id === profile?._id)
+                    const participantCount = challenge.participants?.length || 0
+                    const share = participantCount > 0 ? Math.floor(challenge.stake / participantCount) : challenge.stake
+
+                    return (
+                      <div
+                        key={challenge._id}
+                        className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">{challenge.creator?.name || "Friend"}</p>
+                          <p className="text-xs text-white/60">{challenge.title}</p>
+                          <p className="text-xs text-white/60 mt-1">{participantCount} Joined</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-2 text-sm">
+                          <span className="rounded-full bg-white/10 px-3 py-1 font-semibold">
+                            Total Stake: ◆ {challenge.stake}
+                          </span>
+                          {!isJoined ? (
+                            <Button size="sm" onClick={() => handleJoin(challenge._id)} className="bg-blue-500 hover:bg-blue-600 text-white border-none h-7 text-xs">
+                              Join for Chance to Win
+                            </Button>
+                          ) : (
+                            <span className="text-green-400 text-xs font-semibold">Checked In</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end text-sm">
-                        <span className="mt-1 rounded-full bg-white/10 px-3 py-1 font-semibold">
-                          ◆ {Math.floor(challenge.stake / 5)}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+                    )
+                  })
                 )}
 
                 <p className="mt-2 text-xs text-white/60">

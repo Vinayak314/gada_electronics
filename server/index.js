@@ -7,12 +7,20 @@ import friendRoutes from "./routes/friendRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import challengeRoutes from "./routes/challengeRoutes.js";
 
+import cron from "node-cron";
+import { checkChallenges } from "./services/challengeService.js";
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 connectDB();
+
+// Schedule Cron (Every 10 minutes)
+cron.schedule('*/10 * * * *', () => {
+  checkChallenges();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
