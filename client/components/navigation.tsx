@@ -15,8 +15,6 @@ const navItems = [
   { href: "/profile", label: "Profile", icon: User },
 ]
 
-
-
 export function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
@@ -84,7 +82,9 @@ export function Navigation() {
           {profile?.name && (
             <div className="px-1">
               <div className="text-xs text-muted-foreground">Signed in as</div>
-              <div className="font-medium truncate" title={profile.name}>{profile.name}</div>
+              <div className="font-medium truncate" title={profile.name}>
+                {profile.name}
+              </div>
             </div>
           )}
           <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground">
@@ -123,3 +123,5 @@ export function Navigation() {
     </aside>
   )
 }
+
+
