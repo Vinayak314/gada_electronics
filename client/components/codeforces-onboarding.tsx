@@ -1,18 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Loader2, CheckCircle2, Copy } from "lucide-react"
+import { Loader2, ExternalLink } from "lucide-react"
+
+const VERIFICATION_PROBLEMS = [
+    { contestId: 4, index: 'A', name: "Watermelon" },
+    { contestId: 71, index: 'A', name: "Way Too Long Words" },
+    { contestId: 231, index: 'A', name: "Team" },
+    { contestId: 158, index: 'A', name: "Next Round" },
+    { contestId: 118, index: 'A', name: "String Task" }
+];
 
 export function CodeforcesOnboarding() {
     const { user, profile, refreshProfile, loading } = useAuth()
     const [handle, setHandle] = useState("")
-    const [isLoading, setIsLoading] = useState(false) // renamed from loading to avoid conflict
+    const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
-    const [verificationToken, setVerificationToken] = useState("")
+
+    // Calculate verification problem based on UID (must match server logic)
+    const verificationProblem = useMemo(() => {
+        if (!user?.uid) return VERIFICATION_PROBLEMS[0];
+        const problemIndex = user.uid.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % VERIFICATION_PROBLEMS.length;
+        return VERIFICATION_PROBLEMS[problemIndex];
+    }, [user?.uid]);
 
     // Don't show if loading, no user, or already linked
     if (loading) return null
@@ -20,9 +34,6 @@ export function CodeforcesOnboarding() {
     if (profile?.codeforces?.handle) {
         return null
     }
-
-    // Calculate local token to show in UI
-    const localToken = `Gada-${user.uid.substring(0, 6)}`
 
     const handleLink = async () => {
         if (!handle.trim()) return
@@ -43,9 +54,6 @@ export function CodeforcesOnboarding() {
             const data = await res.json()
 
             if (!res.ok) {
-                if (data.expectedName) {
-                    setVerificationToken(data.expectedName)
-                }
                 throw new Error(data.message || "Failed to verify")
             }
 
@@ -57,9 +65,7 @@ export function CodeforcesOnboarding() {
         }
     }
 
-    const copyToken = () => {
-        navigator.clipboard.writeText(localToken);
-    }
+    const problemUrl = `https://codeforces.com/problemset/problem/${verificationProblem.contestId}/${verificationProblem.index}`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -70,7 +76,7 @@ export function CodeforcesOnboarding() {
                         To get started, please verify and link your Codeforces account.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-white">1. Enter your Codeforces Handle</label>
                         <Input
@@ -81,19 +87,34 @@ export function CodeforcesOnboarding() {
                         />
                     </div>
 
-                    <div className="space-y-2 rounded-lg bg-indigo-900/40 p-4 border border-indigo-500/30">
-                        <label className="text-sm font-medium text-indigo-200">2. Verify Ownership</label>
-                        <p className="text-xs text-indigo-300 mb-2">
-                            Go to Codeforces Settings → Social → Organization and set it to:
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <code className="flex-1 rounded bg-black/30 px-2 py-1.5 font-mono text-sm text-white">
-                                {localToken}
-                            </code>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-indigo-300 hover:text-white" onClick={copyToken}>
-                                <Copy className="h-4 w-4" />
-                            </Button>
+                    <div className="space-y-4 rounded-lg bg-indigo-900/40 p-4 border border-indigo-500/30">
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium text-indigo-200">2. Verify Ownership</label>
+                            <p className="text-xs text-indigo-300">
+                                Submit <strong>ANY</strong> code (even a Compilation Error) to the following problem within the last 10 minutes:
+                            </p>
                         </div>
+
+                        <div className="flex flex-col gap-2 rounded bg-black/30 p-3">
+                            <div className="text-xs text-indigo-400 uppercase tracking-wider font-semibold">Problem to Submit</div>
+                            <div className="flex items-center justify-between">
+                                <span className="font-mono text-lg text-white font-bold">
+                                    {verificationProblem.contestId}{verificationProblem.index} - {verificationProblem.name}
+                                </span>
+                                <a
+                                    href={problemUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded transition-colors"
+                                >
+                                    Open <ExternalLink className="h-3 w-3" />
+                                </a>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-indigo-300/80 italic">
+                            * You don't need to solve it correctly! Even an empty file or "Hello World" works, as long as it registers as a submission.
+                        </p>
                     </div>
 
                     {error && (
@@ -103,7 +124,7 @@ export function CodeforcesOnboarding() {
                     )}
 
                     <Button
-                        className="w-full rounded-full bg-white text-black hover:bg-white/90"
+                        className="w-full rounded-full bg-white text-black hover:bg-white/90 font-semibold"
                         onClick={handleLink}
                         disabled={isLoading || !handle}
                     >
@@ -113,13 +134,9 @@ export function CodeforcesOnboarding() {
                                 Verifying...
                             </>
                         ) : (
-                            "Verify & Link Account"
+                            "I Have Submitted - Verify Now"
                         )}
                     </Button>
-
-                    <p className="text-center text-xs text-white/40">
-                        You can change your organization back after verification.
-                    </p>
                 </CardContent>
             </Card>
         </div>

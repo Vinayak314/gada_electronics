@@ -22,6 +22,14 @@ export const searchUsers = async (req, res) => {
     }
 };
 
+const VERIFICATION_PROBLEMS = [
+    { contestId: 4, index: 'A', name: "Watermelon" },
+    { contestId: 71, index: 'A', name: "Way Too Long Words" },
+    { contestId: 231, index: 'A', name: "Team" },
+    { contestId: 158, index: 'A', name: "Next Round" },
+    { contestId: 118, index: 'A', name: "String Task" }
+];
+
 export const linkCodeforces = async (req, res) => {
     const { handle } = req.body;
     const { uid } = req.user;
@@ -31,25 +39,50 @@ export const linkCodeforces = async (req, res) => {
     }
 
     try {
-        const response = await fetch(`https://codeforces.com/api/user.info?handles=${handle}`);
-        const data = await response.json();
+        // 1. Check if user exists
+        const infoResponse = await fetch(`https://codeforces.com/api/user.info?handles=${handle}`);
+        const infoData = await infoResponse.json();
 
-        if (data.status !== "OK") {
+        if (infoData.status !== "OK") {
             return res.status(400).json({ message: "Codeforces handle not found" });
         }
+        const cfUser = infoData.result[0];
 
-        const cfUser = data.result[0];
+        // 2. Determine Verification Problem
+        // Simple hash of uid to pick a problem deterministically
+        const problemIndex = uid.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % VERIFICATION_PROBLEMS.length;
+        const expectedProblem = VERIFICATION_PROBLEMS[problemIndex];
 
-        // Verification Check: Organization must be "Gada-[uid_suffix]"
-        const expectedName = `Gada-${uid.substring(0, 6)}`;
-        if (cfUser.organization !== expectedName) {
+        // 3. Check Submissions
+        const statusResponse = await fetch(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=20`);
+        const statusData = await statusResponse.json();
+
+        if (statusData.status !== "OK") {
+            // If status is private or error, fail
             return res.status(400).json({
-                message: `Verification failed. Please set your Codeforces 'Organization' to: ${expectedName}`,
-                expectedName
+                message: "Could not retrieve submissions. Ensure your profile is public.",
+                verificationProblem: expectedProblem
             });
         }
 
-        // Optional: Check if this handle is already linked to another user
+        const submissions = statusData.result;
+        const nowSeconds = Math.floor(Date.now() / 1000);
+        const TIME_WINDOW = 600; // 10 minutes
+
+        const validSubmission = submissions.find(s =>
+            s.problem.contestId === expectedProblem.contestId &&
+            s.problem.index === expectedProblem.index &&
+            (nowSeconds - s.creationTimeSeconds) < TIME_WINDOW
+        );
+
+        if (!validSubmission) {
+            return res.status(400).json({
+                message: "Verification failed. No recent submission found for the required problem.",
+                verificationProblem: expectedProblem
+            });
+        }
+
+        // 4. Check for duplicate linking
         const existing = await User.findOne({ "codeforces.handle": cfUser.handle });
         if (existing && existing._id !== uid) {
             return res.status(400).json({ message: "This Codeforces handle is already linked to another account" });
