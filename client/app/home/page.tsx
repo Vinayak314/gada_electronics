@@ -170,7 +170,7 @@ export default function HomePage() {
                             Total Stake: ◆ {challenge.stake}
                           </span>
                           {!isJoined ? (
-                            <Button size="sm" onClick={() => handleJoin(challenge._id)} className="bg-blue-500 hover:bg-blue-600 text-white border-none h-7 text-xs">
+                            <Button size="sm" onClick={() => handleJoin(challenge._id)} className="rounded-full bg-white text-black hover:bg-white/90 border-none h-7 text-xs">
                               Join for Chance to Win
                             </Button>
                           ) : (
@@ -189,7 +189,7 @@ export default function HomePage() {
 
               <div className="mt-8 flex items-center justify-between">
                 <Link href="/editor">
-                  <Button variant="outline" className="border-white/40 bg-white/10 text-white hover:bg-white/20">
+                  <Button variant="outline" className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white/20">
                     Editor &lt;/&gt;
                   </Button>
                 </Link>

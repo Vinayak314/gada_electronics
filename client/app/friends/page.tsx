@@ -214,10 +214,10 @@ export default function FriendsPage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => acceptRequest(req._id)} className="bg-green-500/20 hover:bg-green-500/30 text-green-300 border-none">
+                        <Button size="sm" onClick={() => acceptRequest(req._id)} className="rounded-full bg-white text-black hover:bg-white/90 border-none h-7 text-xs">
                           <Check className="mr-1 h-4 w-4" /> Accept
                         </Button>
-                        <Button size="sm" onClick={() => rejectRequest(req._id)} className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border-none">
+                        <Button size="sm" onClick={() => rejectRequest(req._id)} className="rounded-full border border-white/40 bg-transparent text-white hover:bg-white/10 h-7 text-xs">
                           <X className="mr-1 h-4 w-4" /> Reject
                         </Button>
                       </div>
@@ -268,12 +268,12 @@ export default function FriendsPage() {
                             </span>
                           )}
                           {status === "received" && (
-                            <Button size="sm" onClick={() => acceptRequest(user._id)} variant="secondary" className="bg-white/10 hover:bg-white/20 text-white">
+                            <Button size="sm" onClick={() => acceptRequest(user._id)} className="rounded-full bg-white text-black hover:bg-white/90 h-8 px-4">
                               Accept Request
                             </Button>
                           )}
                           {status === "none" && (
-                            <Button size="sm" onClick={() => sendRequest(user._id)} variant="secondary" className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border-none">
+                            <Button size="sm" onClick={() => sendRequest(user._id)} className="rounded-full bg-white text-black hover:bg-white/90 border-none">
                               <UserPlus className="mr-2 h-4 w-4" /> Add Friend
                             </Button>
                           )}
@@ -311,7 +311,7 @@ export default function FriendsPage() {
             </Card>
           </div>
         </div>
-      </BackgroundGradientAnimation>
-    </ProtectedRoute>
+      </BackgroundGradientAnimation >
+    </ProtectedRoute >
   )
 }

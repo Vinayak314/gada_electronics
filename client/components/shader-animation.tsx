@@ -76,8 +76,8 @@ export function ShaderAnimation() {
 
     container.appendChild(renderer.domElement)
 
-    // Handle window resize
-    const onWindowResize = () => {
+    // Handle resize
+    const onResize = () => {
       const width = container.clientWidth
       const height = container.clientHeight
       renderer.setSize(width, height)
@@ -86,8 +86,13 @@ export function ShaderAnimation() {
     }
 
     // Initial resize
-    onWindowResize()
-    window.addEventListener("resize", onWindowResize, false)
+    onResize()
+
+    // Use ResizeObserver to handle container size changes
+    const resizeObserver = new ResizeObserver(() => {
+      onResize()
+    })
+    resizeObserver.observe(container)
 
     // Animation loop
     const animate = () => {
@@ -114,7 +119,7 @@ export function ShaderAnimation() {
 
     // Cleanup function
     return () => {
-      window.removeEventListener("resize", onWindowResize)
+      resizeObserver.disconnect()
 
       if (sceneRef.current) {
         cancelAnimationFrame(sceneRef.current.animationId)

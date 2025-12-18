@@ -51,7 +51,7 @@ export function SignupForm() {
 
       <Button
         onClick={handleGoogleSignup}
-        className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 group relative overflow-hidden transition-all duration-300 hover:shadow-lg h-12 text-base font-medium"
+        className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 group relative overflow-hidden transition-all duration-300 hover:shadow-lg h-12 text-base font-medium rounded-full"
         disabled={loading}
       >
         <span className="relative z-10 flex items-center justify-center gap-3">

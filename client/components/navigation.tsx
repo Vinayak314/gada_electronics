@@ -44,10 +44,8 @@ export function Navigation() {
     >
       <div className="mb-6 flex items-center gap-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-lg shadow-primary/50">
-            <svg className="h-6 w-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg">
+            <img src="/icon.svg" alt="GadaElectronics" className="w-8 h-8" />
           </div>
           {!collapsed && <h1 className="text-lg font-bold text-foreground">GadaElectronics</h1>}
         </div>
@@ -65,8 +63,8 @@ export function Navigation() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-white text-black"
+                  : "text-muted-foreground hover:bg-white/10 hover:text-white",
                 collapsed && "justify-center px-0",
               )}
             >
