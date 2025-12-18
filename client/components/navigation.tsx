@@ -43,11 +43,11 @@ export function Navigation() {
       )}
     >
       <div className="mb-6 flex items-center gap-2">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg">
-            <img src="/icon.svg" alt="GadaElectronics" className="w-8 h-8" />
+        <div className="flex items-center">
+          <div className="flex h-16 w-24 items-center justify-center rounded-lg">
+            <img src="/feet.png" alt="FeetCode" className="w-20 h-12" />
           </div>
-          {!collapsed && <h1 className="text-lg font-bold text-foreground">GadaElectronics</h1>}
+          {!collapsed && <h1 className="-ml-6 text-2xl font-bold text-foreground">FeetCode</h1>}
         </div>
       </div>
 

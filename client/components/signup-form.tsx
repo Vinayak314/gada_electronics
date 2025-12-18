@@ -45,7 +45,7 @@ export function SignupForm() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-3xl font-bold text-foreground text-balance">Welcome to GadaElectronics</h2>
+        <h2 className="text-3xl font-bold text-foreground text-balance">Welcome to FeetCode</h2>
         <p className="text-sm text-muted-foreground">Sign up with your Google account to get started</p>
       </div>
 
