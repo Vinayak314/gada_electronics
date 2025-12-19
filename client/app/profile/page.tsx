@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ProtectedRoute } from "@/components/protected-route"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
 import SplashCursor from "@/components/splash-cursor"
@@ -17,6 +17,26 @@ export default function ProfilePage() {
   const [cfHandle, setCfHandle] = useState("")
   const [isLinking, setIsLinking] = useState(false)
   const [error, setError] = useState("")
+  const [activeChallenges, setActiveChallenges] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      if (!user) return
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch("http://localhost:5000/api/challenges", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setActiveChallenges(data.filter((c: any) => c.status === 'active'))
+        }
+      } catch (error) {
+        console.error("Failed to fetch challenges", error)
+      }
+    }
+    fetchChallenges()
+  }, [user])
 
   const handleLink = async () => {
     if (!cfHandle.trim()) return;
@@ -53,7 +73,7 @@ export default function ProfilePage() {
     <ProtectedRoute>
       <SplashCursor />
       <BackgroundGradientAnimation>
-        <div className="min-h-screen bg-black/40 p-10 text-white">
+        <div className="min-h-screen bg-black/40 py-10 pl-10 pr-10 text-white w-full">
           <div className="container mx-auto px-6 py-12">
             <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
               <CardContent className="p-8">
@@ -88,7 +108,7 @@ export default function ProfilePage() {
                     </div>
                     {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
 
-                    <div className="mb-6 flex items-center gap-4">
+                    <div className="mb-6 flex flex-wrap items-center gap-4">
                       {profile?.codeforces && (
                         <>
                           <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
@@ -107,20 +127,55 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {profile?.codeforces?.handle ? (
-                      <div className="mt-6">
-                        <p className="mb-2 text-sm text-white/60">Submission Activity</p>
-                        <CodeforcesHeatmap handle={profile.codeforces.handle} />
+                    <div className="mt-6">
+                      <p className="mb-2 text-sm text-white/60">Active Challenges</p>
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {activeChallenges.length === 0 ? (
+                          <p className="text-sm text-white/40">No active challenges.</p>
+                        ) : (
+                          activeChallenges.map((challenge: any) => (
+                            <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <p className="font-semibold text-sm">{challenge.title}</p>
+                                  <p className="text-xs text-white/50">Ends in {challenge.timeframe} days</p>
+                                </div>
+                                <Badge variant="outline" className="border-white/20 text-white/80">
+                                  ◆ {challenge.stake}
+                                </Badge>
+                              </div>
+                              <div className="mt-3">
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-white/70">Progress</span>
+                                  <span className="font-mono">{challenge.currentSolved || 0} / {challenge.questions}</span>
+                                </div>
+                                <div className="h-1.5 w-full rounded-full bg-white/10">
+                                  <div
+                                    className="h-full rounded-full bg-green-500 transition-all duration-500"
+                                    style={{ width: `${Math.min(100, ((challenge.currentSolved || 0) / challenge.questions) * 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-                        disabled
-                      >
-                        Link Codeforces to see Heatmap
-                      </Button>
-                    )}
+                    </div>
+
+                    <div className="mt-6">
+                      <p className="mb-2 text-sm text-white/60">Submission Activity</p>
+                      {profile?.codeforces?.handle ? (
+                        <CodeforcesHeatmap handle={profile.codeforces.handle} />
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                          disabled
+                        >
+                          Link Codeforces to see Heatmap
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>

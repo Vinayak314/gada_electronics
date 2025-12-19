@@ -75,7 +75,7 @@ export function CodeforcesHeatmap({ handle }: CodeforcesHeatmapProps) {
             <div className="flex gap-1 min-w-[max-content]">
                 {/* We can construct columns. Each column is a week. */}
                 {/* But simple way: just map days and use grid-rows-7 grid-flow-col */}
-                <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
+                <div className="grid grid-rows-7 grid-flow-col gap-[2px]">
                     {days.map((day) => {
                         const dateStr = format(day, 'yyyy-MM-dd')
                         const count = submissionCounts.get(dateStr) || 0
@@ -83,7 +83,7 @@ export function CodeforcesHeatmap({ handle }: CodeforcesHeatmapProps) {
                             <TooltipProvider key={dateStr}>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <div className={`h-[15px] w-[15px] rounded-[2px] ${getColor(count)}`} />
+                                        <div className={`h-3 w-3 rounded-[1px] ${getColor(count)}`} />
                                     </TooltipTrigger>
                                     <TooltipContent className="bg-slate-900 border-white/10 text-xs text-white">
                                         {count} submissions on {format(day, 'MMM d, yyyy')}

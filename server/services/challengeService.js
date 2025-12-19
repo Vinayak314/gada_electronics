@@ -33,10 +33,12 @@ export const checkChallenges = async () => {
 
                 const submissions = response.data.result;
                 const challengeStartTime = new Date(challenge.createdAt).getTime() / 1000;
+                const challengeDeadline = new Date(challenge.deadline).getTime() / 1000;
 
                 const validSubmissions = submissions.filter(sub => {
                     return (
                         sub.creationTimeSeconds > challengeStartTime &&
+                        sub.creationTimeSeconds <= challengeDeadline &&
                         sub.verdict === 'OK' &&
                         sub.problem.rating >= challenge.minRating
                     );
@@ -49,6 +51,10 @@ export const checkChallenges = async () => {
                 });
 
                 const count = solvedProblems.size;
+
+                // Update progress
+                challenge.currentSolved = count;
+                await challenge.save();
 
                 // Check Completion
                 if (count >= challenge.questions) {
@@ -83,5 +89,50 @@ export const checkChallenges = async () => {
         }
     } catch (error) {
         console.error("Error in checkChallenges cron:", error);
+    }
+};
+
+export const checkPenalties = async () => {
+    console.log('Running penalty check cron job...');
+    try {
+        const users = await User.find({});
+        const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+        for (const user of users) {
+            // Skip new users (less than 2 weeks old)
+            if (user.createdAt > twoWeeksAgo) continue;
+
+            // Avoid double penalizing in the same 2-week period
+            if (user.lastPenaltyDate && user.lastPenaltyDate > twoWeeksAgo) {
+                continue;
+            }
+
+            // Check Inactivity
+            const isInactive = !user.lastActiveAt || user.lastActiveAt < twoWeeksAgo;
+
+            // Check Challenge Creation
+            const lastChallenge = await Challenge.findOne({ creator: user._id }).sort({ createdAt: -1 });
+            let hasNoRecentChallenge = false;
+
+            if (!lastChallenge) {
+                // User exists > 2 weeks and no challenge ever created
+                hasNoRecentChallenge = true;
+            } else if (lastChallenge.createdAt < twoWeeksAgo) {
+                // Last challenge was created more than 2 weeks ago
+                hasNoRecentChallenge = true;
+            }
+
+            if (isInactive || hasNoRecentChallenge) {
+                const penalty = user.tokens * 0.05;
+                if (penalty > 0) {
+                    user.tokens -= penalty;
+                    user.lastPenaltyDate = new Date();
+                    await user.save();
+                    console.log(`Penalized user ${user.name} (${user._id}) by ${penalty} tokens.`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error in checkPenalties:", error);
     }
 };

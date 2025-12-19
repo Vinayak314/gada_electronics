@@ -8,7 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import challengeRoutes from "./routes/challengeRoutes.js";
 
 import cron from "node-cron";
-import { checkChallenges } from "./services/challengeService.js";
+import { checkChallenges, checkPenalties } from "./services/challengeService.js";
 
 dotenv.config();
 
@@ -17,9 +17,14 @@ app.use(cors());
 app.use(express.json());
 connectDB();
 
-// Schedule Cron (Every 10 minutes)
-cron.schedule('*/10 * * * *', () => {
+// Schedule Challenge Check (Every hour)
+cron.schedule('0 * * * *', () => {
   checkChallenges();
+});
+
+// Schedule Penalty Cron (Every day at midnight)
+cron.schedule('0 0 * * *', () => {
+  checkPenalties();
 });
 
 app.use("/api/auth", authRoutes);
