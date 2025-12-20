@@ -5,19 +5,22 @@
 
 :root {
   /* Updated color palette to #1C1C1C, #4DA3FF, #66CCFF, #FFB347, #FF8C42 */
-  --background: 28 28 28; /* #1C1C1C */
+  --background: 28 28 28;
+  /* #1C1C1C */
   --foreground: 250 250 250;
   --card: 32 32 32;
   --card-foreground: 250 250 250;
   --popover: 32 32 32;
   --popover-foreground: 250 250 250;
-  --primary: 77 163 255; /* #4DA3FF */
+  --primary: 77 163 255;
+  /* #4DA3FF */
   --primary-foreground: 28 28 28;
   --secondary: 48 48 48;
   --secondary-foreground: 250 250 250;
   --muted: 50 50 50;
   --muted-foreground: 160 160 160;
-  --accent: 102 204 255; /* #66CCFF */
+  --accent: 102 204 255;
+  /* #66CCFF */
   --accent-foreground: 28 28 28;
   --destructive: 239 68 68;
   --destructive-foreground: 250 250 250;
@@ -26,8 +29,10 @@
   --ring: 77 163 255;
   --chart-1: 77 163 255;
   --chart-2: 102 204 255;
-  --chart-3: 255 179 71; /* #FFB347 */
-  --chart-4: 255 140 66; /* #FF8C42 */
+  --chart-3: 255 179 71;
+  /* #FFB347 */
+  --chart-4: 255 140 66;
+  /* #FF8C42 */
   --chart-5: 150 150 255;
   --radius: 0.75rem;
   --sidebar: 32 32 32;
@@ -76,7 +81,7 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
+  --font-sans: var(--font-vt323);
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: rgb(var(--background));
   --color-foreground: rgb(var(--foreground));
@@ -120,12 +125,19 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    /* Disable font smoothing for crisp pixel look */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: none;
+    font-smooth: never;
+    text-rendering: pixelated;
   }
 }
 
 @layer base {
+
   /* Updated holographic border to use new color scheme */
   .holographic-border::before {
     content: "";
@@ -145,6 +157,7 @@
     0% {
       filter: hue-rotate(0deg);
     }
+
     100% {
       filter: hue-rotate(360deg);
     }
@@ -163,10 +176,12 @@
   }
 
   @keyframes shimmer {
+
     0%,
     100% {
       transform: translate(-50%, -50%) rotate(0deg);
     }
+
     50% {
       transform: translate(-30%, -30%) rotate(180deg);
     }

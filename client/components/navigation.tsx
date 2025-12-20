@@ -8,6 +8,7 @@ import { Home, Users, User, LogOut, Menu, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { auth } from "@/firebase"
 import { useAuth } from "@/context/auth-context"
+import FuzzyText from "@/components/fuzzy-text"
 
 const navItems = [
   { href: "/home", label: "Home", icon: Home },
@@ -47,7 +48,19 @@ export function Navigation() {
           <div className="flex h-16 w-24 items-center justify-center rounded-lg">
             <img src="/feet.png" alt="FeetCode" className="w-20 h-12" />
           </div>
-          {!collapsed && <h1 className="-ml-6 text-2xl font-bold text-foreground">FeetCode</h1>}
+          {!collapsed && (
+            <div className="-ml-6">
+              <FuzzyText
+                fontSize={50}
+                fontWeight={900}
+                fontFamily="inherit"
+                color="#fafafa"
+                enableHover={true}
+              >
+                FeetCode
+              </FuzzyText>
+            </div>
+          )}
         </div>
       </div>
 

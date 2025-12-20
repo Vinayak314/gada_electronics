@@ -4,6 +4,8 @@ import { SignupForm } from "@/components/signup-form"
 import { ShaderAnimation } from "@/components/shader-animation"
 
 
+import FuzzyText from "@/components/fuzzy-text"
+
 export default function AuthPage() {
   return (
     <div className="min-h-screen w-full relative overflow-hidden bg-[#1C1C1C]">
@@ -15,7 +17,16 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <div className="flex items-center justify-center mb-8 group">
             <img src="/feet.png" alt="FeetCode" className="w-28 h-16" />
-            <h1 className="-ml-6 text-2xl font-bold text-foreground">FeetCode</h1>
+            <FuzzyText
+              fontSize={80}
+              fontWeight={900}
+              fontFamily="inherit"
+              color="#fafafa"
+              className="-ml-6"
+              enableHover={true}
+            >
+              FeetCode
+            </FuzzyText>
           </div>
 
           <div className="backdrop-blur-xl bg-card/50 border border-border rounded-2xl p-8 shadow-2xl holographic-border relative overflow-hidden">
