@@ -75,8 +75,8 @@ export default function ProfilePage() {
     <ProtectedRoute>
       <SplashCursor />
       <BackgroundGradientAnimation>
-        <div className="min-h-screen bg-black/40 py-10 pl-10 pr-10 text-white w-full">
-          <div className="container mx-auto px-6 py-12">
+        <div className="min-h-screen bg-black/40 py-0 pl-10 pr-10 text-white w-full overflow-y-auto">
+          <div className="container mx-auto px-6 py-4">
             <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
               <CardContent className="p-8">
                 <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">

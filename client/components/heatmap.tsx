@@ -84,7 +84,6 @@ export function CodeforcesHeatmap({ handle }: CodeforcesHeatmapProps) {
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <div className={`h-3 w-3 rounded-[2px] ${getColor(count)}`} />
-                                        <div className={`h-3 w-3 rounded-[1px] ${getColor(count)}`} />
                                     </TooltipTrigger>
                                     <TooltipContent className="bg-slate-900 border-white/10 text-xs text-white">
                                         {count} submissions on {format(day, 'MMM d, yyyy')}
