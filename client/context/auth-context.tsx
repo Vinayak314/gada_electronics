@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (firebaseUser: User) => {
     try {
       const token = await firebaseUser.getIdToken();
-      const res = await fetch('http://localhost:5000/api/auth/me', {
+      const res = await fetch('https://gadaelectronics-backend.vercel.app/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

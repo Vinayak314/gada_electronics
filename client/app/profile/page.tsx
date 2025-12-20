@@ -25,7 +25,7 @@ export default function ProfilePage() {
       if (!user) return
       try {
         const token = await user.getIdToken()
-        const res = await fetch("http://localhost:5000/api/challenges", {
+        const res = await fetch("https://gadaelectronics-backend.vercel.app/api/challenges", {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -47,7 +47,7 @@ export default function ProfilePage() {
     setError("");
     try {
       const token = await user?.getIdToken();
-      const res = await fetch('http://localhost:5000/api/users/codeforces/link', {
+      const res = await fetch('https://gadaelectronics-backend.vercel.app/api/users/codeforces/link', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

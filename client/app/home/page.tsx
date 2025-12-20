@@ -48,12 +48,12 @@ export default function HomePage() {
       const token = await user.getIdToken()
 
       // Fetch your challenges
-      const resYour = await fetch("http://localhost:5000/api/challenges", {
+      const resYour = await fetch("https://gadaelectronics-backend.vercel.app/api/challenges", {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       // Fetch friends' challenges
-      const resFriends = await fetch("http://localhost:5000/api/challenges/friends", {
+      const resFriends = await fetch("https://gadaelectronics-backend.vercel.app/api/challenges/friends", {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -78,7 +78,7 @@ export default function HomePage() {
     if (!user) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`http://localhost:5000/api/challenges/${challengeId}/join`, {
+      const res = await fetch(`https://gadaelectronics-backend.vercel.app/api/challenges/${challengeId}/join`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -126,22 +126,33 @@ export default function HomePage() {
                   ) : yourChallenges.length === 0 ? (
                     <div className="text-sm text-white/50">No active challenges. Add one!</div>
                   ) : (
-                    yourChallenges.map((challenge) => (
-                      <div
-                        key={challenge._id}
-                        className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">{challenge.title}</p>
-                          <p className="text-xs text-white/60">
-                            in {challenge.timeframe} days
-                          </p>
+                    yourChallenges.map((challenge) => {
+                      const participantCount = challenge.participants?.length || 0
+                      return (
+                        <div
+                          key={challenge._id}
+                          className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                        >
+                          <div>
+                            <p className="text-sm font-medium">{challenge.title}</p>
+                            <p className="text-xs text-white/60">
+                              {challenge.timeframe} days • Ends {new Date(challenge.deadline).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                            </p>
+                            <p className="text-xs text-white/60 mt-1">
+                              {participantCount} Friends Joined
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-2 text-sm font-semibold">
+                            <span className="rounded-full bg-white/10 px-3 py-1">
+                              Prize Pool: ◆ {challenge.totalPool || challenge.stake}
+                            </span>
+                            <span className="text-xs text-white/50 pr-1">
+                              Stake: ◆ {challenge.stake}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                          <span className="rounded-full bg-white/10 px-3 py-1">◆ {challenge.stake}</span>
-                        </div>
-                      </div>
-                    ))
+                      )
+                    })
                   )}
                 </div>
 
@@ -179,7 +190,10 @@ export default function HomePage() {
                         <div>
                           <p className="text-sm font-medium">{challenge.creator?.name || "Friend"}</p>
                           <p className="text-xs text-white/60">{challenge.title}</p>
-                          <p className="text-xs text-white/60 mt-1">{participantCount} Joined</p>
+                          <p className="text-xs text-white/60 mt-1">
+                            {challenge.timeframe} days • Ends {new Date(challenge.deadline).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                          </p>
+                          <p className="text-xs text-white/60 mt-0.5">{participantCount} Joined</p>
                         </div>
                         <div className="flex flex-col items-end gap-2 text-sm">
                           <span className="rounded-full bg-white/10 px-3 py-1 font-semibold">

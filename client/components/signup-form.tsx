@@ -23,7 +23,7 @@ export function SignupForm() {
       const token = await result.user.getIdToken()
       console.log("Firebase ID Token:", token);
       // Call the Express server
-      await fetch("http://localhost:5000/api/auth/login", {
+      await fetch("https://gadaelectronics-backend.vercel.app/api/auth/login", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
