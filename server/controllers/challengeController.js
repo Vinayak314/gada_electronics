@@ -58,6 +58,12 @@ export const joinChallenge = async (req, res) => {
         const { id } = req.params;
         const uid = req.user.uid;
 
+        // Check if user has an active challenge
+        const myActiveChallenge = await Challenge.findOne({ creator: uid, status: 'active' });
+        if (!myActiveChallenge) {
+            return res.status(400).json({ message: "You must have an active challenge to join a friend's challenge." });
+        }
+
         const challenge = await Challenge.findById(id);
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });

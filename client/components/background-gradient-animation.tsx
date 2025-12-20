@@ -125,8 +125,8 @@ export function BackgroundGradientAnimation({ children }: { children?: ReactNode
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <canvas ref={canvasRef} className="absolute inset-0 -z-10" />
+    <div className="relative min-h-screen overflow-x-hidden z-0">
+      <canvas ref={canvasRef} className="fixed inset-0 -z-10" />
       {children}
     </div>
   )

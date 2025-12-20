@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import Editor from "@monaco-editor/react"
 import { executeCode } from "@/lib/piston"
 
-export default function CodeEditorPage() {
-  const [code, setCode] = useState(`#include <bits/stdc++.h>
+const TEMPLATES = {
+  cpp: `#include <bits/stdc++.h>
 using namespace std;
 
 int main() {
@@ -21,8 +21,29 @@ int main() {
 
     cout << "Hello, World!"; 
     return 0;
-}`)
+}`,
+  python: `import sys
+
+def main():
+    # Write your code here
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    main()`,
+  java: `import java.util.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Write your code here
+        System.out.println("Hello, World!");
+    }
+}`,
+}
+
+export default function CodeEditorPage() {
   const [language, setLanguage] = useState("cpp")
+  const [code, setCode] = useState(TEMPLATES.cpp)
   const [output, setOutput] = useState("")
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -52,15 +73,19 @@ int main() {
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-2xl font-bold text-white">Code Editor</h1>
             <div className="flex items-center gap-4">
-              <Select value={language} onValueChange={setLanguage}>
+              <Select
+                value={language}
+                onValueChange={(value) => {
+                  setLanguage(value)
+                  setCode(TEMPLATES[value as keyof typeof TEMPLATES])
+                }}
+              >
                 <SelectTrigger className="w-40 border-white/30 bg-white/10 text-white [&>span]:text-white">
                   <SelectValue placeholder="Choose language" />
                 </SelectTrigger>
                 <SelectContent className="border-white/20 bg-slate-900 text-white">
                   <SelectItem value="cpp">C++</SelectItem>
                   <SelectItem value="python">Python</SelectItem>
-                  <SelectItem value="javascript">JavaScript</SelectItem>
-                  <SelectItem value="typescript">TypeScript</SelectItem>
                   <SelectItem value="java">Java</SelectItem>
                 </SelectContent>
               </Select>

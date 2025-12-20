@@ -71,7 +71,7 @@ export function CodeforcesOnboarding() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
             <Card className="w-full max-w-md border-white/20 bg-slate-900 shadow-2xl">
                 <CardHeader>
-                    <CardTitle className="text-2xl text-white">Welcome to GadaElectronics!</CardTitle>
+                    <CardTitle className="text-2xl text-white">Welcome to FeetCode!</CardTitle>
                     <CardDescription className="text-white/60">
                         To get started, please verify and link your Codeforces account.
                     </CardDescription>

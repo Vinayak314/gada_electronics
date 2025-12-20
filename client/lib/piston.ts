@@ -18,6 +18,7 @@ export const executeCode = async (language: string, sourceCode: string, input: s
             version: LANGUAGE_VERSIONS[language] || "*",
             files: [
                 {
+                    name: language === "java" ? "Main.java" : undefined,
                     content: sourceCode,
                 },
             ],

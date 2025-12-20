@@ -14,11 +14,11 @@ export const login = async (req, res) => {
         photoURL: picture,
       });
     } else {
-      // Update photo if changed (optional, but good practice)
       if (user.photoURL !== picture) {
         user.photoURL = picture;
-        await user.save();
       }
+      user.lastActiveAt = new Date();
+      await user.save();
     }
 
     res.status(200).json({

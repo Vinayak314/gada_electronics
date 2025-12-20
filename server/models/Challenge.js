@@ -18,6 +18,10 @@ const ChallengeSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    currentSolved: {
+        type: Number,
+        default: 0
+    },
     timeframe: {
         type: Number, // Duration in days
         required: true

@@ -25,6 +25,13 @@ const UserSchema = new mongoose.Schema({
         default: 1000.0,
         min: 0,
     },
+    lastActiveAt: {
+        type: Date,
+        default: Date.now,
+    },
+    lastPenaltyDate: {
+        type: Date,
+    },
     codeforces: {
         handle: String,
         rating: Number,
