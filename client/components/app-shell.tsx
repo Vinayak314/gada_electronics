@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className={
           isAuthPage
             ? "min-h-screen transition-all duration-200"
-            : "min-h-screen pl-[var(--sidebar-width,16rem)] transition-all duration-200"
+            : "min-h-screen pl-0 md:pl-[var(--sidebar-width,16rem)] transition-all duration-200"
         }
       >
         {!isAuthPage && <CodeforcesOnboarding />}
