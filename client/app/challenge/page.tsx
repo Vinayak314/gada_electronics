@@ -14,15 +14,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 export default function AddChallengePage() {
   const { user, profile, refreshProfile } = useAuth()
   const router = useRouter()
-  const [questions, setQuestions] = useState(5)
-  const [rating, setRating] = useState(800)
-  const [timeframe, setTimeframe] = useState(7)
-  const [stake, setStake] = useState(100)
+  const [questions, setQuestions] = useState<number | string>(5)
+  const [rating, setRating] = useState<number | string>(800)
+  const [timeframe, setTimeframe] = useState<number | string>(7)
+  const [stake, setStake] = useState<number | string>(100)
   const [loading, setLoading] = useState(false)
 
   const handleCreateChallenge = async () => {
     if (!user) return
     setLoading(true)
+    if (Number(questions) < 1) {
+      alert("Number of questions must be at least 1")
+      setLoading(false)
+      return
+    }
+    if (Number(rating) < 800) {
+      alert("Minimum rating must be at least 800")
+      setLoading(false)
+      return
+    }
+    if (Number(timeframe) < 1) {
+      alert("Timeframe must be at least 1 day")
+      setLoading(false)
+      return
+    }
+
     try {
       const token = await user.getIdToken()
       const res = await fetch("http://localhost:5000/api/challenges", {
@@ -72,8 +88,9 @@ export default function AddChallengePage() {
                   <Input
                     id="questions"
                     type="number"
+                    min={1}
                     value={questions}
-                    onChange={(e) => setQuestions(Number.parseInt(e.target.value) || 0)}
+                    onChange={(e) => setQuestions(e.target.value === '' ? '' : parseInt(e.target.value))}
                     className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
                   />
                 </div>
@@ -86,8 +103,10 @@ export default function AddChallengePage() {
                     <Input
                       id="rated"
                       type="number"
+                      min={800}
+                      step={100}
                       value={rating}
-                      onChange={(e) => setRating(Number.parseInt(e.target.value) || 0)}
+                      onChange={(e) => setRating(e.target.value === '' ? '' : parseInt(e.target.value))}
                       className="w-32 border-white/30 bg-white/10 text-white placeholder:text-white/50"
                     />
                     <span className="text-sm text-white">within</span>
@@ -95,8 +114,9 @@ export default function AddChallengePage() {
                       <Input
                         id="timeframe"
                         type="number"
+                        min={1}
                         value={timeframe}
-                        onChange={(e) => setTimeframe(Number.parseInt(e.target.value) || 0)}
+                        onChange={(e) => setTimeframe(e.target.value === '' ? '' : parseInt(e.target.value))}
                         className="w-24 border-white/30 bg-white/10 text-white placeholder:text-white/50"
                       />
                       <span className="text-sm text-white">days</span>
@@ -115,12 +135,12 @@ export default function AddChallengePage() {
                         id="stake"
                         type="number"
                         value={stake}
-                        onChange={(e) => setStake(Number.parseInt(e.target.value) || 0)}
+                        onChange={(e) => setStake(e.target.value === '' ? '' : parseInt(e.target.value))}
                         className="border-white/30 bg-white/10 text-white placeholder:text-white/50"
                       />
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className={stake > (profile?.tokens ?? 0) ? "text-red-400" : "text-white/60"}>
+                      <span className={Number(stake) > (profile?.tokens ?? 0) ? "text-red-400" : "text-white/60"}>
                         Available: ◆ {profile?.tokens ?? 0}
                       </span>
                     </div>
@@ -131,16 +151,12 @@ export default function AddChallengePage() {
                   className="w-full rounded-full bg-white text-black hover:bg-white/90"
                   size="lg"
                   onClick={handleCreateChallenge}
-                  disabled={loading || stake > (profile?.tokens ?? 0)}
+                  disabled={loading || Number(stake) > (profile?.tokens ?? 0)}
                 >
                   {loading ? "Creating..." : "Create Challenge"}
                 </Button>
               </CardContent>
             </Card>
-
-            <div className="mt-6 text-center text-sm text-white/70">
-              NOTE: If you put 100 here and have 5 friends, each friend will get 20.
-            </div>
           </div>
         </div>
       </BackgroundGradientAnimation>

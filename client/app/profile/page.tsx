@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [isLinking, setIsLinking] = useState(false)
   const [error, setError] = useState("")
   const [activeChallenges, setActiveChallenges] = useState<any[]>([])
+  const [pastChallenges, setPastChallenges] = useState<any[]>([])
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -30,6 +31,7 @@ export default function ProfilePage() {
         if (res.ok) {
           const data = await res.json()
           setActiveChallenges(data.filter((c: any) => c.status === 'active'))
+          setPastChallenges(data.filter((c: any) => c.status !== 'active'))
         }
       } catch (error) {
         console.error("Failed to fetch challenges", error)
@@ -133,31 +135,86 @@ export default function ProfilePage() {
                         {activeChallenges.length === 0 ? (
                           <p className="text-sm text-white/40">No active challenges.</p>
                         ) : (
-                          activeChallenges.map((challenge: any) => (
-                            <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <p className="font-semibold text-sm">{challenge.title}</p>
-                                  <p className="text-xs text-white/50">Ends in {challenge.timeframe} days</p>
+                          activeChallenges.map((challenge: any) => {
+                            const isCreator = challenge.creator?._id === profile?._id;
+                            const myProgress = isCreator
+                              ? challenge.currentSolved
+                              : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
+
+                            return (
+                              <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <p className="font-semibold text-sm">{challenge.title}</p>
+                                    <p className="text-xs text-white/50">Ends in {challenge.timeframe} days</p>
+                                  </div>
+                                  <div className="flex flex-col items-end">
+                                    <Badge variant="outline" className="border-white/20 text-white/80">
+                                      Pool: ◆ {challenge.totalPool || challenge.stake}
+                                    </Badge>
+                                  </div>
                                 </div>
-                                <Badge variant="outline" className="border-white/20 text-white/80">
-                                  ◆ {challenge.stake}
-                                </Badge>
+                                <div className="mt-3">
+                                  <div className="flex justify-between text-xs mb-1">
+                                    <span className="text-white/70">Your Progress</span>
+                                    <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
+                                  </div>
+                                  <div className="h-1.5 w-full rounded-full bg-white/10">
+                                    <div
+                                      className="h-full rounded-full bg-green-500 transition-all duration-500"
+                                      style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                              <div className="mt-3">
-                                <div className="flex justify-between text-xs mb-1">
-                                  <span className="text-white/70">Progress</span>
-                                  <span className="font-mono">{challenge.currentSolved || 0} / {challenge.questions}</span>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <p className="mb-2 text-sm text-white/60">Past Goals</p>
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {pastChallenges.length === 0 ? (
+                          <p className="text-sm text-white/40">No past goals.</p>
+                        ) : (
+                          pastChallenges.map((challenge: any) => {
+                            const isCreator = challenge.creator?._id === profile?._id;
+                            const myProgress = isCreator
+                              ? challenge.currentSolved
+                              : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
+                            const amIWinner = myProgress >= challenge.questions;
+
+                            return (
+                              <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10 opacity-80">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <p className="font-semibold text-sm">{challenge.title}</p>
+                                    <p className="text-xs text-white/50">{new Date(challenge.deadline).toLocaleDateString()}</p>
+                                  </div>
+                                  <Badge
+                                    variant="outline"
+                                    className={`border-white/20 ${amIWinner ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'}`}
+                                  >
+                                    {amIWinner ? 'Success' : 'Failed'}
+                                  </Badge>
                                 </div>
-                                <div className="h-1.5 w-full rounded-full bg-white/10">
-                                  <div
-                                    className="h-full rounded-full bg-green-500 transition-all duration-500"
-                                    style={{ width: `${Math.min(100, ((challenge.currentSolved || 0) / challenge.questions) * 100)}%` }}
-                                  />
+                                <div className="mt-3">
+                                  <div className="flex justify-between text-xs mb-1">
+                                    <span className="text-white/70">Final Score</span>
+                                    <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
+                                  </div>
+                                  <div className="h-1.5 w-full rounded-full bg-white/10">
+                                    <div
+                                      className={`h-full rounded-full transition-all duration-500 ${amIWinner ? 'bg-green-500' : 'bg-red-500'}`}
+                                      style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
+                                    />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))
+                            )
+                          })
                         )}
                       </div>
                     </div>

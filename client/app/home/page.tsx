@@ -14,17 +14,24 @@ type Challenge = {
   title: string
   timeframe: number
   stake: number
+  totalPool?: number
   deadline: string
   participants?: {
-    _id: string
-    name: string
-    photoURL: string
+    user: {
+      _id: string
+      name: string
+      photoURL: string
+    }
+    progress: number
+    status: string
   }[]
+  // ... existing creator ...
   creator?: {
     _id: string
     name: string
     photoURL: string
   }
+  status: 'active' | 'completed' | 'failed'
 }
 
 export default function HomePage() {
@@ -52,8 +59,8 @@ export default function HomePage() {
       if (resYour.ok && resFriends.ok) {
         const dataYour = await resYour.json()
         const dataFriends = await resFriends.json()
-        setYourChallenges(dataYour)
-        setFriendsChallenges(dataFriends)
+        setYourChallenges(dataYour.filter((c: Challenge) => c.status === 'active'))
+        setFriendsChallenges(dataFriends.filter((c: Challenge) => c.status === 'active'))
       }
     } catch (error) {
       console.error("Failed to fetch challenges", error)
@@ -151,7 +158,7 @@ export default function HomePage() {
                   <div className="text-sm text-white/50">No friends' challenges yet.</div>
                 ) : (
                   friendsChallenges.map((challenge) => {
-                    const isJoined = challenge.participants?.some(p => p._id === profile?._id)
+                    const isJoined = challenge.participants?.some(p => p.user?._id === profile?._id)
                     const participantCount = challenge.participants?.length || 0
                     const share = participantCount > 0 ? Math.floor(challenge.stake / participantCount) : challenge.stake
 
@@ -167,15 +174,16 @@ export default function HomePage() {
                         </div>
                         <div className="flex flex-col items-end gap-2 text-sm">
                           <span className="rounded-full bg-white/10 px-3 py-1 font-semibold">
-                            Total Stake: ◆ {challenge.stake}
+                            Prize Pool: ◆ {challenge.totalPool || challenge.stake}
                           </span>
                           {!isJoined ? (
                             <Button size="sm" onClick={() => handleJoin(challenge._id)} className="rounded-full bg-white text-black hover:bg-white/90 border-none h-7 text-xs">
-                              Join for Chance to Win
+                              Participate
                             </Button>
                           ) : (
-                            <span className="text-green-400 text-xs font-semibold">Checked In</span>
+                            <span className="text-green-400 text-xs font-semibold pr-2">Checked In</span>
                           )}
+                          <span className="text-xs text-white/50 pr-2">Entry: ◆ {challenge.stake}</span>
                         </div>
                       </div>
                     )

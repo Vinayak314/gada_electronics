@@ -28,7 +28,9 @@ export const createChallenge = async (req, res) => {
             minRating,
             timeframe,
             stake,
-            deadline
+            stake,
+            deadline,
+            totalPool: stake
         });
 
         await newChallenge.save();
@@ -43,14 +45,22 @@ export const createChallenge = async (req, res) => {
 export const getChallenges = async (req, res) => {
     try {
         const uid = req.user.uid;
-        // Get user's active challenges
-        const challenges = await Challenge.find({ creator: uid }).sort({ createdAt: -1 });
+        // Get user's active challenges (created or joined)
+        const challenges = await Challenge.find({
+            $or: [
+                { creator: uid },
+                { 'participants.user': uid }
+            ]
+        })
+            .populate('participants.user', 'name photoURL')
+            .populate('creator', 'name photoURL')
+            .sort({ createdAt: -1 });
+
         res.status(200).json(challenges);
     } catch (error) {
         console.error("Error getting challenges:", error);
         res.status(500).json({ message: error.message });
     }
-
 };
 
 export const joinChallenge = async (req, res) => {
@@ -58,15 +68,17 @@ export const joinChallenge = async (req, res) => {
         const { id } = req.params;
         const uid = req.user.uid;
 
-        // Check if user has an active challenge
-        const myActiveChallenge = await Challenge.findOne({ creator: uid, status: 'active' });
-        if (!myActiveChallenge) {
-            return res.status(400).json({ message: "You must have an active challenge to join a friend's challenge." });
-        }
+        // Check if user has enough tokens to join
+        const user = await User.findById(uid);
+        if (!user) return res.status(404).json({ message: "User not found" });
 
         const challenge = await Challenge.findById(id);
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
+        }
+
+        if (user.tokens < challenge.stake) {
+            return res.status(400).json({ message: "Insufficient tokens to join challenge" });
         }
 
         if (challenge.status !== 'active') {
@@ -77,11 +89,18 @@ export const joinChallenge = async (req, res) => {
             return res.status(400).json({ message: "Cannot join your own challenge" });
         }
 
-        if (challenge.participants.includes(uid)) {
+        // Check if already joined
+        if (challenge.participants.some(p => p.user.toString() === uid)) {
             return res.status(400).json({ message: "Already joined" });
         }
 
-        challenge.participants.push(uid);
+        // Deduct tokens from joiner
+        user.tokens -= challenge.stake;
+        await user.save();
+
+        // Add to pool and participants
+        challenge.totalPool += challenge.stake;
+        challenge.participants.push({ user: uid, progress: 0, status: 'active' });
         await challenge.save();
 
         res.status(200).json(challenge);
@@ -104,7 +123,7 @@ export const getFriendsChallenges = async (req, res) => {
             status: 'active' // Optional: only show active challenges
         })
             .populate('creator', 'name photoURL')
-            .populate('participants', 'name photoURL')
+            .populate('participants.user', 'name photoURL')
             .sort({ createdAt: -1 });
 
         res.status(200).json(challenges);

@@ -7,82 +7,105 @@ export const checkChallenges = async () => {
     try {
         const activeChallenges = await Challenge.find({ status: 'active' })
             .populate('creator')
-            .populate('participants');
+            .populate('participants.user');
 
         for (const challenge of activeChallenges) {
             try {
                 const creator = challenge.creator;
-                if (!creator) {
-                    // Creator deleted? Maybe fail challenge or ignore?
-                    console.log(`Challenge ${challenge._id} has no creator.`);
-                    continue;
-                }
-
-                if (!creator.codeforces || !creator.codeforces.handle) {
-                    console.log(`Creator ${creator.name} has no Codeforces handle`);
-                    continue;
-                }
-
-                const handle = creator.codeforces.handle;
-                const response = await axios.get(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=100`);
-
-                if (response.data.status !== 'OK') {
-                    console.log(`Failed to fetch submissions for ${handle}`);
-                    continue;
-                }
-
-                const submissions = response.data.result;
                 const challengeStartTime = new Date(challenge.createdAt).getTime() / 1000;
                 const challengeDeadline = new Date(challenge.deadline).getTime() / 1000;
+                const isDeadlinePassed = new Date() > new Date(challenge.deadline);
 
-                const validSubmissions = submissions.filter(sub => {
-                    return (
-                        sub.creationTimeSeconds > challengeStartTime &&
-                        sub.creationTimeSeconds <= challengeDeadline &&
-                        sub.verdict === 'OK' &&
-                        sub.problem.rating >= challenge.minRating
-                    );
-                });
+                // Helper to check progress for a user
+                const checkUserProgress = async (user) => {
+                    if (!user || !user.codeforces || !user.codeforces.handle) return 0;
+                    try {
+                        const response = await axios.get(`https://codeforces.com/api/user.status?handle=${user.codeforces.handle}&from=1&count=100`);
+                        if (response.data.status !== 'OK') return 0;
 
-                // Unique problems
-                const solvedProblems = new Set();
-                validSubmissions.forEach(sub => {
-                    solvedProblems.add(`${sub.problem.contestId}-${sub.problem.index}`);
-                });
+                        const submissions = response.data.result;
+                        const validSubmissions = submissions.filter(sub => {
+                            return (
+                                sub.creationTimeSeconds > challengeStartTime &&
+                                sub.creationTimeSeconds <= challengeDeadline &&
+                                sub.verdict === 'OK' &&
+                                sub.problem.rating >= challenge.minRating
+                            );
+                        });
 
-                const count = solvedProblems.size;
+                        const solvedProblems = new Set();
+                        validSubmissions.forEach(sub => {
+                            solvedProblems.add(`${sub.problem.contestId}-${sub.problem.index}`);
+                        });
 
-                // Update progress
-                challenge.currentSolved = count;
-                await challenge.save();
+                        return solvedProblems.size;
+                    } catch (e) {
+                        console.error(`Error checking progress for ${user.codeforces.handle}:`, e.message);
+                        return 0;
+                    }
+                };
 
-                // Check Completion
-                if (count >= challenge.questions) {
-                    // Success!
-                    challenge.status = 'completed';
-                    creator.tokens += challenge.stake;
-                    await creator.save();
-                    await challenge.save();
-                    console.log(`Challenge ${challenge._id} completed by ${creator.name}`);
-                } else if (new Date() > new Date(challenge.deadline)) {
-                    // Failed
-                    challenge.status = 'failed';
-                    await challenge.save();
+                // 1. Update Creator Progress
+                if (creator) {
+                    const creatorProgress = await checkUserProgress(creator);
+                    challenge.currentSolved = creatorProgress;
+                }
 
-                    const validParticipants = challenge.participants.filter(p => p);
-                    const numParticipants = validParticipants.length;
-                    if (numParticipants > 0) {
-                        const share = challenge.stake / numParticipants;
-                        for (const participant of validParticipants) {
-                            participant.tokens += share;
-                            await participant.save();
+                // 2. Update Participants Progress
+                for (const p of challenge.participants) {
+                    if (p.user) {
+                        const progress = await checkUserProgress(p.user);
+                        p.progress = progress;
+                        if (progress >= challenge.questions) {
+                            p.status = 'completed';
+                        } else {
+                            p.status = 'active'; // or 'failed' if deadline passed (handled below)
                         }
-                        console.log(`Challenge ${challenge._id} failed. ${challenge.stake} distributed to ${numParticipants} friends.`);
-                    } else {
-                        console.log(`Challenge ${challenge._id} failed. No participants to distribute stake.`);
-                        // Stake is lost (burned)
                     }
                 }
+
+                await challenge.save();
+
+                // 3. Handle Deadline / Completion
+                if (isDeadlinePassed) {
+                    let winners = [];
+
+                    // Check Creator
+                    if (challenge.currentSolved >= challenge.questions) {
+                        winners.push(creator);
+                    }
+
+                    // Check Participants
+                    challenge.participants.forEach(p => {
+                        if (p.progress >= challenge.questions && p.user) {
+                            winners.push(p.user);
+                            p.status = 'completed';
+                        } else {
+                            p.status = 'failed';
+                        }
+                    });
+
+                    if (winners.length > 0) {
+                        const share = challenge.totalPool / winners.length;
+                        for (const winner of winners) {
+                            // Fetch FRESH user to ensure atomic update or just save
+                            const winnerDoc = await User.findById(winner._id);
+                            if (winnerDoc) {
+                                winnerDoc.tokens += share;
+                                await winnerDoc.save();
+                                console.log(`Distributed ${share} tokens to winner ${winnerDoc.name}`);
+                            }
+                        }
+                        challenge.status = 'completed';
+                        console.log(`Challenge ${challenge._id} completed. Pool ${challenge.totalPool} distributed among ${winners.length} winners.`);
+                    } else {
+                        challenge.status = 'failed';
+                        console.log(`Challenge ${challenge._id} failed. Pool ${challenge.totalPool} burned.`);
+                    }
+
+                    await challenge.save();
+                }
+
             } catch (err) {
                 console.error(`Error processing challenge ${challenge._id}:`, err.message);
             }

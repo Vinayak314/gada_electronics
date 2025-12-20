@@ -43,9 +43,23 @@ const ChallengeSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    totalPool: {
+        type: Number,
+        default: 0
+    },
     participants: [{
-        type: String,
-        ref: "User"
+        user: {
+            type: String,
+            ref: "User"
+        },
+        progress: {
+            type: Number,
+            default: 0
+        },
+        status: {
+            type: String, // 'active', 'completed', 'failed'
+            default: 'active'
+        }
     }]
 });
 
