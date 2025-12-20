@@ -65,7 +65,7 @@ export default function ProfilePage() {
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1 text-center md:text-left">
+                  <div className="flex-1 min-w-0 text-center md:text-left">
                     <div className="mb-2 flex flex-col items-center gap-2 md:flex-row md:items-center">
                       <h1 className="text-3xl font-bold text-white">{profile?.name || "User"}</h1>
                       {profile?.codeforces ? (
