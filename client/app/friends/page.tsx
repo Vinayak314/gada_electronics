@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Search, UserPlus, Check, X, User as UserIcon, Clock } from "lucide-react"
 import { ProtectedRoute } from "@/components/protected-route"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
-import SplashCursor from "@/components/splash-cursor"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -173,7 +172,6 @@ export default function FriendsPage() {
 
   return (
     <ProtectedRoute>
-      <SplashCursor />
       <BackgroundGradientAnimation>
         <div className="min-h-screen bg-black/40 p-10 text-white">
           <div className="container mx-auto px-6 py-8">

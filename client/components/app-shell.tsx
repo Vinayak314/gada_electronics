@@ -4,6 +4,7 @@ import type React from "react"
 import { usePathname } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { CodeforcesOnboarding } from "@/components/codeforces-onboarding"
+import SplashCursor from "@/components/splash-cursor"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -14,6 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <>
       {/* Navigation already hides itself on auth pages, but we only need it when not on auth routes */}
       {!isAuthPage && <Navigation />}
+      {!isAuthPage && <SplashCursor />}
       <main
         className={
           isAuthPage

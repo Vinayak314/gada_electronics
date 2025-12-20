@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
-import SplashCursor from "@/components/splash-cursor"
+
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ProtectedRoute } from "@/components/protected-route"
@@ -95,7 +95,7 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-      <SplashCursor />
+
       <BackgroundGradientAnimation>
         <div className="min-h-screen bg-black/40 p-10 text-white">
           <div className="mx-auto flex max-w-4xl flex-col gap-8">
