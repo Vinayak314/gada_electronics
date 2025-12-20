@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { ProtectedRoute } from "@/components/protected-route"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
-import SplashCursor from "@/components/splash-cursor"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -97,7 +96,6 @@ export default function AddChallengePage() {
 
   return (
     <ProtectedRoute>
-      <SplashCursor />
       <BackgroundGradientAnimation>
         <div className="min-h-screen bg-black/40 p-10 text-white">
           <div className="container mx-auto max-w-3xl">

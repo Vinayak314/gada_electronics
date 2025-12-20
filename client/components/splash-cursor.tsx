@@ -552,7 +552,7 @@ function SplashCursor({
 
     const blit = (() => {
       const positionBuffer = gl.createBuffer();
-      if (!positionBuffer) return () => {};
+      if (!positionBuffer) return () => { };
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(
         gl.ARRAY_BUFFER,
@@ -560,7 +560,7 @@ function SplashCursor({
         gl.STATIC_DRAW,
       );
       const indexBuffer = gl.createBuffer();
-      if (!indexBuffer) return () => {};
+      if (!indexBuffer) return () => { };
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
       gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
