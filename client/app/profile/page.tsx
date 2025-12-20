@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ProtectedRoute } from "@/components/protected-route"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
-import SplashCursor from "@/components/splash-cursor"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
   return (
     <ProtectedRoute>
-      <SplashCursor />
+
       <BackgroundGradientAnimation>
         <div className="min-h-screen bg-black/40 py-0 pl-10 pr-10 text-white w-full overflow-y-auto">
           <div className="container mx-auto px-6 py-4">
