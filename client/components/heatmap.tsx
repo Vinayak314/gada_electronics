@@ -83,6 +83,7 @@ export function CodeforcesHeatmap({ handle }: CodeforcesHeatmapProps) {
                             <TooltipProvider key={dateStr}>
                                 <Tooltip>
                                     <TooltipTrigger>
+                                        <div className={`h-3 w-3 rounded-[2px] ${getColor(count)}`} />
                                         <div className={`h-3 w-3 rounded-[1px] ${getColor(count)}`} />
                                     </TooltipTrigger>
                                     <TooltipContent className="bg-slate-900 border-white/10 text-xs text-white">
@@ -97,11 +98,11 @@ export function CodeforcesHeatmap({ handle }: CodeforcesHeatmapProps) {
             <div className="mt-2 flex items-center justify-end gap-2 text-[10px] text-white/40">
                 <span>Less</span>
                 <div className="flex gap-[2px]">
-                    <div className="h-[10px] w-[10px] rounded-[2px] bg-white/5" />
-                    <div className="h-[10px] w-[10px] rounded-[2px] bg-green-900/40" />
-                    <div className="h-[10px] w-[10px] rounded-[2px] bg-green-700/60" />
-                    <div className="h-[10px] w-[10px] rounded-[2px] bg-green-500/80" />
-                    <div className="h-[10px] w-[10px] rounded-[2px] bg-green-400" />
+                    <div className="h-2.5 w-2.5 rounded-[2px] bg-white/5" />
+                    <div className="h-2.5 w-2.5 rounded-[2px] bg-green-900/40" />
+                    <div className="h-2.5 w-2.5 rounded-[2px] bg-green-700/60" />
+                    <div className="h-2.5 w-2.5 rounded-[2px] bg-green-500/80" />
+                    <div className="h-2.5 w-2.5 rounded-[2px] bg-green-400" />
                 </div>
                 <span>More</span>
             </div>

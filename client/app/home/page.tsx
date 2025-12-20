@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { BackgroundGradientAnimation } from "@/components/background-gradient-animation"
 import SplashCursor from "@/components/splash-cursor"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ProtectedRoute } from "@/components/protected-route"
 import Link from "next/link"
 
@@ -117,7 +118,11 @@ export default function HomePage() {
 
                 <div className="space-y-3">
                   {loading ? (
-                    <div className="text-sm text-white/50">Loading challenges...</div>
+                    <div className="space-y-3">
+                      {[1, 2].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full rounded-xl bg-white/5" />
+                      ))}
+                    </div>
                   ) : yourChallenges.length === 0 ? (
                     <div className="text-sm text-white/50">No active challenges. Add one!</div>
                   ) : (
@@ -153,7 +158,11 @@ export default function HomePage() {
                 <h2 className="text-lg font-semibold">Friend&apos;s Challenges</h2>
 
                 {loading ? (
-                  <div className="text-sm text-white/50">Loading friends' challenges...</div>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-xl bg-white/5" />
+                    ))}
+                  </div>
                 ) : friendsChallenges.length === 0 ? (
                   <div className="text-sm text-white/50">No friends' challenges yet.</div>
                 ) : (
