@@ -73,6 +73,3 @@ The project features a unique "liquid glass" UI style, pixelated fonts (VT323), 
 
 For a PDF version of this documentation or project details, you can print this page using your browser's "Print to PDF" feature. This README serves as the primary documentation source.
 
-## License
-
-[Your License Here]
