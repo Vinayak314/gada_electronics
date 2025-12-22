@@ -27,6 +27,10 @@ cron.schedule('0 0 * * *', () => {
   checkPenalties();
 });
 
+app.use("/", (req, res) => {
+  res.send("Feetcode backend");
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
 app.use("/api/users", userRoutes);
