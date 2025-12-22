@@ -73,12 +73,12 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <BackgroundGradientAnimation>
-        <div className="min-h-screen bg-black/40 py-0 pl-10 pr-10 text-white w-full overflow-y-auto">
+        <div className="min-h-screen bg-black/40 py-0 px-4 md:px-10 text-white w-full overflow-y-auto">
           <div className="container mx-auto px-6 py-4">
             <Card className="border-white/20 bg-black/40 backdrop-blur-xl">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
-                  <Avatar className="h-32 w-32 border-4 border-white/20">
+              <CardContent className="p-4 md:p-8">
+                <div className="flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
+                  <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white/20">
                     <AvatarImage src={profile?.photoURL || profile?.codeforces?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-2xl text-white">
                       {profile?.name?.charAt(0) || "U"}
@@ -87,7 +87,7 @@ export default function ProfilePage() {
 
                   <div className="flex-1 min-w-0 text-center md:text-left">
                     <div className="mb-2 flex flex-col items-center gap-2 md:flex-row md:items-center">
-                      <h1 className="text-3xl font-bold text-white">{profile?.name || "User"}</h1>
+                      <h1 className="text-2xl md:text-3xl font-bold text-white">{profile?.name || "User"}</h1>
                       {profile?.codeforces ? (
                         <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
                           CodeForces: {profile.codeforces.handle}
@@ -108,128 +108,130 @@ export default function ProfilePage() {
                     </div>
                     {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
 
-                    <div className="mb-6 flex flex-wrap items-center gap-4">
-                      {profile?.codeforces && (
-                        <>
-                          <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
-                            <p className="text-xs text-white/60">Rank</p>
-                            <p className="text-2xl font-bold text-white capitalize">{profile.codeforces.rank || "Unrated"}</p>
-                          </div>
-                          <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
-                            <p className="text-xs text-white/60">Rating</p>
-                            <p className="text-2xl font-bold text-white">{profile.codeforces.rating || "N/A"}</p>
-                          </div>
-                        </>
-                      )}
-                      <div className="rounded-xl bg-white/5 px-4 py-3 text-left flex-1">
-                        <p className="text-xs text-white/60">Coins</p>
-                        <p className="text-2xl font-bold text-white">◆ {profile?.tokens ?? 0}</p>
+                    <div className="hidden lg:block">
+                      <div className="mb-6 grid grid-cols-2 gap-4 md:flex md:flex-wrap md:items-center">
+                        {profile?.codeforces && (
+                          <>
+                            <div className="rounded-xl bg-white/5 px-4 py-3 text-left md:flex-1">
+                              <p className="text-xs text-white/60">Rank</p>
+                              <p className="text-2xl font-bold text-white capitalize truncate">{profile.codeforces.rank || "Unrated"}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 px-4 py-3 text-left md:flex-1">
+                              <p className="text-xs text-white/60">Rating</p>
+                              <p className="text-2xl font-bold text-white truncate">{profile.codeforces.rating || "N/A"}</p>
+                            </div>
+                          </>
+                        )}
+                        <div className="rounded-xl bg-white/5 px-4 py-3 text-left md:flex-1 col-span-2 md:col-span-1">
+                          <p className="text-xs text-white/60">Coins</p>
+                          <p className="text-2xl font-bold text-white truncate">◆ {profile?.tokens ?? 0}</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-6">
-                      <p className="mb-2 text-sm text-white/60">Active Challenges</p>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {activeChallenges.length === 0 ? (
-                          <p className="text-sm text-white/40">No active challenges.</p>
-                        ) : (
-                          activeChallenges.map((challenge: any) => {
-                            const isCreator = challenge.creator?._id === profile?._id;
-                            const myProgress = isCreator
-                              ? challenge.currentSolved
-                              : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
+                      <div className="mt-6">
+                        <p className="mb-2 text-sm text-white/60">Active Challenges</p>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          {activeChallenges.length === 0 ? (
+                            <p className="text-sm text-white/40">No active challenges.</p>
+                          ) : (
+                            activeChallenges.map((challenge: any) => {
+                              const isCreator = challenge.creator?._id === profile?._id;
+                              const myProgress = isCreator
+                                ? challenge.currentSolved
+                                : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
 
-                            return (
-                              <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10">
-                                <div className="flex justify-between items-start mb-2">
-                                  <div>
-                                    <p className="font-semibold text-sm">{challenge.title}</p>
-                                    <p className="text-xs text-white/50">Ends in {challenge.timeframe} days</p>
+                              return (
+                                <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <p className="font-semibold text-sm">{challenge.title}</p>
+                                      <p className="text-xs text-white/50">Ends in {challenge.timeframe} days</p>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                      <Badge variant="outline" className="border-white/20 text-white/80">
+                                        Pool: ◆ {challenge.totalPool || challenge.stake}
+                                      </Badge>
+                                    </div>
                                   </div>
-                                  <div className="flex flex-col items-end">
-                                    <Badge variant="outline" className="border-white/20 text-white/80">
-                                      Pool: ◆ {challenge.totalPool || challenge.stake}
+                                  <div className="mt-3">
+                                    <div className="flex justify-between text-xs mb-1">
+                                      <span className="text-white/70">Your Progress</span>
+                                      <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full rounded-full bg-white/10">
+                                      <div
+                                        className="h-full rounded-full bg-green-500 transition-all duration-500"
+                                        style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-6">
+                        <p className="mb-2 text-sm text-white/60">Past Goals</p>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          {pastChallenges.length === 0 ? (
+                            <p className="text-sm text-white/40">No past goals.</p>
+                          ) : (
+                            pastChallenges.map((challenge: any) => {
+                              const isCreator = challenge.creator?._id === profile?._id;
+                              const myProgress = isCreator
+                                ? challenge.currentSolved
+                                : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
+                              const amIWinner = myProgress >= challenge.questions;
+
+                              return (
+                                <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10 opacity-80">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                      <p className="font-semibold text-sm">{challenge.title}</p>
+                                      <p className="text-xs text-white/50">{new Date(challenge.deadline).toLocaleDateString()}</p>
+                                    </div>
+                                    <Badge
+                                      variant="outline"
+                                      className={`border-white/20 ${amIWinner ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'}`}
+                                    >
+                                      {amIWinner ? 'Success' : 'Failed'}
                                     </Badge>
                                   </div>
-                                </div>
-                                <div className="mt-3">
-                                  <div className="flex justify-between text-xs mb-1">
-                                    <span className="text-white/70">Your Progress</span>
-                                    <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
+                                  <div className="mt-3">
+                                    <div className="flex justify-between text-xs mb-1">
+                                      <span className="text-white/70">Final Score</span>
+                                      <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full rounded-full bg-white/10">
+                                      <div
+                                        className={`h-full rounded-full transition-all duration-500 ${amIWinner ? 'bg-green-500' : 'bg-red-500'}`}
+                                        style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
+                                      />
+                                    </div>
                                   </div>
-                                  <div className="h-1.5 w-full rounded-full bg-white/10">
-                                    <div
-                                      className="h-full rounded-full bg-green-500 transition-all duration-500"
-                                      style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
-                                    />
-                                  </div>
                                 </div>
-                              </div>
-                            )
-                          })
-                        )}
+                              )
+                            })
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-6">
-                      <p className="mb-2 text-sm text-white/60">Past Goals</p>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {pastChallenges.length === 0 ? (
-                          <p className="text-sm text-white/40">No past goals.</p>
+                      <div className="mt-6">
+                        <p className="mb-2 text-sm text-white/60">Submission Activity</p>
+                        {profile?.codeforces?.handle ? (
+                          <CodeforcesHeatmap handle={profile.codeforces.handle} />
                         ) : (
-                          pastChallenges.map((challenge: any) => {
-                            const isCreator = challenge.creator?._id === profile?._id;
-                            const myProgress = isCreator
-                              ? challenge.currentSolved
-                              : challenge.participants?.find((p: any) => p.user?._id === profile?._id)?.progress || 0;
-                            const amIWinner = myProgress >= challenge.questions;
-
-                            return (
-                              <div key={challenge._id} className="rounded-xl bg-white/5 p-4 border border-white/10 opacity-80">
-                                <div className="flex justify-between items-start mb-2">
-                                  <div>
-                                    <p className="font-semibold text-sm">{challenge.title}</p>
-                                    <p className="text-xs text-white/50">{new Date(challenge.deadline).toLocaleDateString()}</p>
-                                  </div>
-                                  <Badge
-                                    variant="outline"
-                                    className={`border-white/20 ${amIWinner ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'}`}
-                                  >
-                                    {amIWinner ? 'Success' : 'Failed'}
-                                  </Badge>
-                                </div>
-                                <div className="mt-3">
-                                  <div className="flex justify-between text-xs mb-1">
-                                    <span className="text-white/70">Final Score</span>
-                                    <span className="font-mono">{myProgress || 0} / {challenge.questions}</span>
-                                  </div>
-                                  <div className="h-1.5 w-full rounded-full bg-white/10">
-                                    <div
-                                      className={`h-full rounded-full transition-all duration-500 ${amIWinner ? 'bg-green-500' : 'bg-red-500'}`}
-                                      style={{ width: `${Math.min(100, ((myProgress || 0) / challenge.questions) * 100)}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          })
+                          <Button
+                            variant="outline"
+                            className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                            disabled
+                          >
+                            Link Codeforces to see Heatmap
+                          </Button>
                         )}
                       </div>
-                    </div>
-
-                    <div className="mt-6">
-                      <p className="mb-2 text-sm text-white/60">Submission Activity</p>
-                      {profile?.codeforces?.handle ? (
-                        <CodeforcesHeatmap handle={profile.codeforces.handle} />
-                      ) : (
-                        <Button
-                          variant="outline"
-                          className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-                          disabled
-                        >
-                          Link Codeforces to see Heatmap
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </div>

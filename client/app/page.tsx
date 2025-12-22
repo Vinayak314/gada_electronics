@@ -16,13 +16,13 @@ export default function AuthPage() {
       <div className="relative z-30 flex items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md">
           <div className="flex items-center justify-center mb-8 group">
-            <img src="/feet.png" alt="FeetCode" className="w-28 h-16" />
+            <img src="/feet.png" alt="FeetCode" className="w-36 h-20 object-contain" />
             <FuzzyText
               fontSize={80}
               fontWeight={900}
               fontFamily="inherit"
               color="#fafafa"
-              className="-ml-6"
+              className="-ml-10"
               enableHover={true}
             >
               FeetCode
