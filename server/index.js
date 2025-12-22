@@ -27,16 +27,16 @@ cron.schedule('0 0 * * *', () => {
   checkPenalties();
 });
 
-app.use("/", (req, res) => {
-  res.send("Feetcode backend");
-});
-
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/challenges", challengeRoutes);
 
-const PORT = process.env.PORT || 5000;
+app.get("/", (req, res) => {
+  res.send("Feetcode backend");
+});
+
+const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

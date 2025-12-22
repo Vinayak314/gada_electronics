@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { API_BASE_URL } from "@/lib/api-config"
 
 export default function AddChallengePage() {
   const { user, profile, refreshProfile } = useAuth()
@@ -42,7 +43,7 @@ export default function AddChallengePage() {
 
     try {
       const token = await user.getIdToken()
-      const res = await fetch("https://gada-electronics-gzcv.onrender.com/api/challenges", {
+      const res = await fetch(`${API_BASE_URL}/api/challenges`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Loader2, ExternalLink } from "lucide-react"
+import { API_BASE_URL } from "@/lib/api-config"
 
 const VERIFICATION_PROBLEMS = [
     { contestId: 4, index: 'A', name: "Watermelon" },
@@ -42,7 +43,7 @@ export function CodeforcesOnboarding() {
 
         try {
             const token = await user.getIdToken()
-            const res = await fetch("https://gada-electronics-gzcv.onrender.com/api/users/codeforces/link", {
+            const res = await fetch(`${API_BASE_URL}/api/users/codeforces/link`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth, UserProfile } from "@/context/auth-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { API_BASE_URL } from "@/lib/api-config"
 interface FriendUser {
   _id: string
   name: string
@@ -35,8 +36,8 @@ export default function FriendsPage() {
       const headers = { Authorization: `Bearer ${token}` }
 
       const [friendsRes, requestsRes] = await Promise.all([
-        fetch("https://gada-electronics-gzcv.onrender.com/api/friends", { headers }),
-        fetch("https://gada-electronics-gzcv.onrender.com/api/friends/requests", { headers })
+        fetch(`${API_BASE_URL}/api/friends`, { headers }),
+        fetch(`${API_BASE_URL}/api/friends/requests`, { headers })
       ])
 
       if (friendsRes.ok) {
@@ -70,7 +71,7 @@ export default function FriendsPage() {
 
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`https://gada-electronics-gzcv.onrender.com/api/users/search?query=${encodeURIComponent(val)}`, {
+      const res = await fetch(`${API_BASE_URL}/api/users/search?query=${encodeURIComponent(val)}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (res.ok) {
@@ -86,7 +87,7 @@ export default function FriendsPage() {
     if (!user) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`https://gada-electronics-gzcv.onrender.com/api/friends/request/${receiverId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/friends/request/${receiverId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -112,7 +113,7 @@ export default function FriendsPage() {
     if (!user) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`https://gada-electronics-gzcv.onrender.com/api/friends/accept/${senderId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/friends/accept/${senderId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -129,7 +130,7 @@ export default function FriendsPage() {
     if (!user) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`https://gada-electronics-gzcv.onrender.com/api/friends/reject/${senderId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/friends/reject/${senderId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       })

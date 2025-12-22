@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "firebase/auth"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/firebase"
+import { API_BASE_URL } from "@/lib/api-config"
 
 
 export interface UserProfile {
@@ -39,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (firebaseUser: User) => {
     try {
       const token = await firebaseUser.getIdToken();
-      const res = await fetch('https://gada-electronics-gzcv.onrender.com/api/auth/me', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/protected-route"
 import Link from "next/link"
 
 import { useAuth } from "@/context/auth-context"
+import { API_BASE_URL } from "@/lib/api-config"
 
 type Challenge = {
   _id: string
@@ -48,12 +49,12 @@ export default function HomePage() {
       const token = await user.getIdToken()
 
       // Fetch your challenges
-      const resYour = await fetch("https://gada-electronics-gzcv.onrender.com/api/challenges", {
+      const resYour = await fetch(`${API_BASE_URL}/api/challenges`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       // Fetch friends' challenges
-      const resFriends = await fetch("https://gada-electronics-gzcv.onrender.com/api/challenges/friends", {
+      const resFriends = await fetch(`${API_BASE_URL}/api/challenges/friends`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -78,7 +79,7 @@ export default function HomePage() {
     if (!user) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`https://gada-electronics-gzcv.onrender.com/api/challenges/${challengeId}/join`, {
+      const res = await fetch(`${API_BASE_URL}/api/challenges/${challengeId}/join`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       })

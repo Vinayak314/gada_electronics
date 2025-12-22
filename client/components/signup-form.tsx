@@ -6,6 +6,7 @@ import { signInWithPopup } from "firebase/auth"
 import { auth, googleProvider } from "@/firebase"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { API_BASE_URL } from "@/lib/api-config"
 
 import { useAuth } from "@/context/auth-context"
 
@@ -23,7 +24,7 @@ export function SignupForm() {
       const token = await result.user.getIdToken()
 
       // Call the Express server
-      await fetch("https://gada-electronics-gzcv.onrender.com/api/auth/login", {
+      await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
