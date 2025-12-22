@@ -21,9 +21,9 @@ export function SignupForm() {
       // Sign in with Google using Firebase (same flow as test-frontend)
       const result = await signInWithPopup(auth, googleProvider)
       const token = await result.user.getIdToken()
-      console.log("Firebase ID Token:", token);
+
       // Call the Express server
-      await fetch("https://gadaelectronics-backend.vercel.app/api/auth/login", {
+      await fetch("https://gada-electronics-gzcv.onrender.com/api/auth/login", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

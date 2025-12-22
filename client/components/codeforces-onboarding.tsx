@@ -42,7 +42,7 @@ export function CodeforcesOnboarding() {
 
         try {
             const token = await user.getIdToken()
-            const res = await fetch("https://gadaelectronics-backend.vercel.app/api/users/codeforces/link", {
+            const res = await fetch("https://gada-electronics-gzcv.onrender.com/api/users/codeforces/link", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -42,7 +42,7 @@ export default function AddChallengePage() {
 
     try {
       const token = await user.getIdToken()
-      const res = await fetch("https://gadaelectronics-backend.vercel.app/api/challenges", {
+      const res = await fetch("https://gada-electronics-gzcv.onrender.com/api/challenges", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
