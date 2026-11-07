@@ -73,3 +73,20 @@ The project features a unique "liquid glass" UI style, pixelated fonts (VT323), 
 
 For a PDF version of this documentation or project details, you can print this page using your browser's "Print to PDF" feature. This README serves as the primary documentation source.
 
+
+## Public dashboard demo
+
+Open `/demo` to explore the FeetCode dashboard with fictional challenges and coins.
+Creating and joining challenges updates browser memory for that visit. A reload resets
+the demo. The demo does not require any backend or Firebase configuration.
+
+To embed it, set `PORTFOLIO_ORIGIN` in the Vercel frontend project before redeploying
+the `client` app. Use the portfolio's exact HTTPS origin (for example,
+`https://portfolio.example`), including a port if applicable, without a path or
+trailing slash. If the variable is unset, `/demo` still works directly and blocks all
+framing. Every other route denies framing.
+
+After redeploying, check that the final `/demo` response sends the expected CSP
+`frame-ancestors` and has no host-level `X-Frame-Options` or additional CSP policy
+that blocks the portfolio. If the portfolio has a `frame-src` policy, allow the
+FeetCode frontend origin in that policy.
